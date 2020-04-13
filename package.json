@@ -19,14 +19,14 @@
     "rxjs": "^6.5.5",
     "shortid": "^2.2.15",
     "sqlite": "^3.0.6",
-    "sqlite3": "^4.1.1",
-    "zeromq": "^6.0.0-beta.5"
+    "zeromq": "^5.2.0"
   },
   "devDependencies": {
     "@types/async": "^3.2.0",
     "@types/core-js": "^2.5.3",
     "@types/node": "^13.9.5",
     "@types/shortid": "0.0.29",
+    "@types/zeromq": "^4.6.3",
     "@typescript-eslint/eslint-plugin": "^2.25.0",
     "@typescript-eslint/parser": "^2.25.0",
     "eslint": "^6.8.0",
