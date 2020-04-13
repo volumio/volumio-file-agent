@@ -1,5 +1,5 @@
 import { spawn } from 'child_process'
-import { Left, left } from 'fp-ts/lib/Either'
+import { Either, left } from 'fp-ts/lib/Either'
 import { cpus } from 'os'
 import path from 'path'
 import { filter } from 'rxjs/operators'
@@ -7,8 +7,8 @@ import * as zmq from 'zeromq'
 
 import { SOCKET_ADDRESS } from './constants'
 import { JobQueue } from './JobQueue'
-import { Response, ResponseStream } from './ResponseStream'
-import { Job } from './Worker/types'
+import { ResponseStream } from './ResponseStream'
+import { Job, JobSuccess } from './Worker/types'
 
 const WORKERS_NUMBER = cpus().length
 const WORKER_MAIN = path.resolve(__dirname, 'Worker', 'main')
@@ -22,7 +22,9 @@ function spawnWorker(isTypescript: boolean) {
   )
 
   console.log(`MetadataProcessing worker [${worker.pid}]: spawned`)
-  // worker.stdout.pipe(process.stdout)
+
+  worker.stdout.pipe(process.stdout)
+
   worker.once('exit', spawnWorker)
 }
 
@@ -79,9 +81,11 @@ export type MetadataProcessing = {
   process: (
     file: Job['file'],
     timeout?: number,
-  ) => Promise<Left<'TIMEOUT'> | Response['result']>
+  ) => Promise<Either<'TIMEOUT' | Error, ProcessedFile>>
 }
 
 type Config = {
   isTypescript: boolean
 }
+
+export type ProcessedFile = JobSuccess['file']
