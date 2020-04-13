@@ -6,19 +6,16 @@ import { SOCKET_ADDRESS } from '../constants'
 import { JobQueue } from './JobQueue'
 import { ResponseQueue } from './ResponseQueue'
 
-async function processRequests(router: zmq.Router) {
+async function main() {
+  const router = zmq.socket('router')
+  router.connect(SOCKET_ADDRESS)
+  console.log(`MetadataProcessing worker [${process.pid}]: router connected`)
+
   const jobQueue = JobQueue()
   const responseQueue = ResponseQueue(router)
 
-  while (!router.closed) {
-    const [requester, jobId, serializedFile] = await router.receive()
-
-    /**
-     * We do not await this process
-     * because we want to be able to receive a new request immediately.
-     *
-     * Concurrency handling is managed by the job queue.
-     */
+  const enqueueRequest = (...request: Buffer[]) => {
+    const [requester, jobId, serializedFile] = request
     jobQueue
       .process({
         requester,
@@ -27,14 +24,11 @@ async function processRequests(router: zmq.Router) {
       })
       .then((result) => responseQueue.add(result))
   }
-}
 
-async function main() {
-  const router = new zmq.Router()
-  router.connect(SOCKET_ADDRESS)
-  console.log(`MetadataProcessing worker [${process.pid}]: router connected`)
-
-  processRequests(router)
+  router.on('message', enqueueRequest)
+  router.on('close', () => {
+    router.removeListener('message', enqueueRequest)
+  })
 
   process.once('exit', () => {
     router.close()

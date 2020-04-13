@@ -1,23 +1,31 @@
-import { queue } from 'async'
+import { isLeft } from 'fp-ts/lib/Either'
 import * as zmq from 'zeromq'
 
 import { JobResult } from '../JobQueue'
-import { ResponseDispatcher } from './ResponseDispatcher'
 
-export const ResponseQueue = (router: zmq.Router): ResponseQueue => {
-  const dispatcher = ResponseDispatcher(router)
-  const sendQueue = queue(
-    dispatcher,
-    /**
-     * Concurrency is set to 1
-     * because we have to wait
-     * the router to be ready
-     */
-    1,
-  )
-
+export const ResponseQueue = (router: zmq.Socket): ResponseQueue => {
   return {
-    add: (result) => sendQueue.push(result),
+    add: (result) => {
+      const response = isLeft(result)
+        ? [
+            result.left.requester,
+            result.left.id,
+            'ERROR',
+            JSON.stringify({
+              name: result.left.error.name,
+              message: result.left.error.message,
+              stack: result.left.error.stack,
+            }),
+          ]
+        : [
+            result.right.requester,
+            result.right.id,
+            'OK',
+            JSON.stringify(result.right.file),
+          ]
+
+      router.send(response)
+    },
   }
 }
 

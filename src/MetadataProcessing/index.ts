@@ -1,4 +1,4 @@
-import { spawn } from 'child_process'
+import { ChildProcess, spawn } from 'child_process'
 import { Either, left } from 'fp-ts/lib/Either'
 import { cpus } from 'os'
 import path from 'path'
@@ -13,19 +13,31 @@ import { Job, JobSuccess } from './Worker/types'
 const WORKERS_NUMBER = cpus().length
 const WORKER_MAIN = path.resolve(__dirname, 'Worker', 'main')
 
+const workersSet = new Set<ChildProcess>()
+
+process.on('exit', () => {
+  workersSet.forEach((worker) => worker.kill())
+})
+
 function spawnWorker(isTypescript: boolean) {
   const worker = spawn(
     'node',
     isTypescript
       ? ['-r', 'ts-node/register', `${WORKER_MAIN}.ts`]
       : [`${WORKER_MAIN}.js`],
+    {
+      env: process.env,
+      stdio: 'inherit',
+    },
   )
 
+  workersSet.add(worker)
+
   console.log(`MetadataProcessing worker [${worker.pid}]: spawned`)
-
-  worker.stdout.pipe(process.stdout)
-
-  worker.once('exit', spawnWorker)
+  worker.once('exit', () => {
+    workersSet.delete(worker)
+    spawnWorker(isTypescript)
+  })
 }
 
 function startWorkers(isTypescript: boolean) {
@@ -37,15 +49,23 @@ function startWorkers(isTypescript: boolean) {
 export const MetadataProcessing = ({
   isTypescript,
 }: Config): MetadataProcessing => {
-  const dealer = new zmq.Dealer()
+  const dealer = zmq.socket('dealer')
   const jobQueue = JobQueue(dealer)
   const responseStream = ResponseStream(dealer)
 
   return {
     boot: async () => {
       startWorkers(isTypescript)
-      await dealer.bind(SOCKET_ADDRESS)
-      console.log('MetadataProcessing dealer: bound')
+      return new Promise((resolve, reject) => {
+        dealer.bind(SOCKET_ADDRESS, (error) => {
+          if (error) {
+            reject(new Error(error))
+          } else {
+            console.log('MetadataProcessing dealer: bound')
+            resolve()
+          }
+        })
+      })
     },
     process: (file, timeout) =>
       new Promise(async (resolve) => {

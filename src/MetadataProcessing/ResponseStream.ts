@@ -4,9 +4,11 @@ import * as zmq from 'zeromq'
 
 import { JobSuccess } from './Worker/types'
 
-async function processMessages(dealer: zmq.Dealer, subject: Subject<Response>) {
-  while (!dealer.closed) {
-    const [requestId, outcome, serializedErrorOrFile] = await dealer.receive()
+export const ResponseStream = (dealer: zmq.Socket): Observable<Response> => {
+  const subject = new Subject<Response>()
+
+  const streamResponse = (...parts: Buffer[]) => {
+    const [requestId, outcome, serializedErrorOrFile] = parts
 
     try {
       const errorOrFile = JSON.parse(serializedErrorOrFile.toString())
@@ -22,11 +24,11 @@ async function processMessages(dealer: zmq.Dealer, subject: Subject<Response>) {
       })
     }
   }
-}
 
-export const ResponseStream = (dealer: zmq.Dealer): Observable<Response> => {
-  const subject = new Subject<Response>()
-  processMessages(dealer, subject)
+  dealer.on('message', streamResponse)
+  dealer.once('close', () => {
+    dealer.removeListener('message', streamResponse)
+  })
   return subject
 }
 

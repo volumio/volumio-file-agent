@@ -4,23 +4,14 @@ import * as zmq from 'zeromq'
 
 import { Job } from './Worker/types'
 
-export const JobQueue = (dealer: zmq.Dealer): JobQueue => {
+export const JobQueue = (dealer: zmq.Socket): JobQueue => {
   const requestQueue = queue<{
     id: string
     serializedFile: string
   }>(
     (request, done) => {
-      if (!dealer.closed) {
-        dealer
-          .send([request.id, request.serializedFile])
-          .then(() => done())
-          .catch((error) => {
-            console.error(error)
-            done(error)
-          })
-      } else {
-        done()
-      }
+      dealer.send([request.id, request.serializedFile])
+      done()
     },
     /**
      * Concurrency is set to 1
