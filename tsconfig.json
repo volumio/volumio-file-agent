@@ -4,7 +4,9 @@
     "alwaysStrict": true,
     "baseUrl": ".",
     "declaration": true,
+    "emitDecoratorMetadata": true,
     "esModuleInterop": true,
+    "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "lib": ["ES2015", "ESNext.AsyncIterable"],
     "module": "commonjs",
@@ -12,8 +14,15 @@
     "noErrorTruncation": true,
     "noImplicitAny": true,
     "outDir": "./dist",
+    "paths": {
+      "@adapters/*": ["./src/adapters/*"],
+      "@fs": ["./src/fs"],
+      "@fs/*": ["./src/fs/*"],
+      "@HTTPServer/*": ["./src/HTTPServer/*"],
+      "@ports/*": ["./src/ports/*"]
+    },
     "sourceMap": true,
-    "strict": true,
+    "strict": false,
     "strictNullChecks": true,
     "target": "ES2015"
   },
