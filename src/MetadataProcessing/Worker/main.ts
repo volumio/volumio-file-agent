@@ -10,7 +10,7 @@ import { ResponseQueue } from './ResponseQueue'
 async function main() {
   const router = zmq.socket('router')
   router.connect(SOCKET_ADDRESS)
-  debug.info(`Router connected to ${SOCKET_ADDRESS}`)
+  debug.info(`ZMQ Router connected to ${SOCKET_ADDRESS}`)
 
   const jobQueue = JobQueue()
   const responseQueue = ResponseQueue(router)
