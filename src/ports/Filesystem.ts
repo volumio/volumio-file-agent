@@ -17,6 +17,8 @@ export type FilesystemPort = {
     }>
   }>
 
+  isDirectory: (path: string) => Promise<Either<Error, boolean>>
+
   /**
    * Get minimal stats about a file
    */
