@@ -6,6 +6,7 @@ import { filter } from 'rxjs/operators'
 import * as zmq from 'zeromq'
 
 import { SOCKET_ADDRESS } from './constants'
+import { log } from './debug'
 import { JobQueue } from './JobQueue'
 import { ResponseStream } from './ResponseStream'
 import { Job, JobSuccess } from './Worker/types'
@@ -16,7 +17,10 @@ const WORKER_MAIN = path.resolve(__dirname, 'Worker', 'main')
 const workersSet = new Set<ChildProcess>()
 
 process.on('exit', () => {
-  workersSet.forEach((worker) => worker.kill())
+  workersSet.forEach((worker) => {
+    log(`Killing worker [${worker.pid}]`)
+    worker.kill()
+  })
 })
 
 function spawnWorker(isTypescript: boolean) {
@@ -33,8 +37,10 @@ function spawnWorker(isTypescript: boolean) {
 
   workersSet.add(worker)
 
-  console.log(`MetadataProcessing worker [${worker.pid}]: spawned`)
+  log(`Spawned worker [${worker.pid}]`)
+
   worker.once('exit', () => {
+    log(`Worker died [${worker.pid}]`)
     workersSet.delete(worker)
     spawnWorker(isTypescript)
   })
@@ -56,16 +62,17 @@ export const MetadataProcessing = ({
   return {
     boot: async () => {
       startWorkers(isTypescript)
-      return new Promise((resolve, reject) => {
+      await new Promise((resolve, reject) => {
         dealer.bind(SOCKET_ADDRESS, (error) => {
           if (error) {
             reject(new Error(error))
           } else {
-            console.log('MetadataProcessing dealer: bound')
+            log(`ZMQ Dealer bound to ${SOCKET_ADDRESS}`)
             resolve()
           }
         })
       })
+      await new Promise((resolve) => setTimeout(resolve, 500))
     },
     process: (file, timeout) =>
       new Promise(async (resolve) => {
