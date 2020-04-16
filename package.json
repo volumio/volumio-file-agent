@@ -4,8 +4,9 @@
   "private": true,
   "description": "",
   "scripts": {
-    "build": "tsc",
-    "try": "rm -rf dist && npm run build && node dist/main"
+    "build": "rm -rf dist && tsc",
+    "start": "node dist/main",
+    "try": "npm run build && npm run start"
   },
   "repository": {
     "type": "git",
