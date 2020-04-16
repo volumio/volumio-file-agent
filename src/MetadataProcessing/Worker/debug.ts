@@ -1,6 +1,6 @@
 import D from 'debug'
 
-const NAMESPACE = 'fa:metadata_processing:module'
+const NAMESPACE = `fa:metadata_processing:worker`
 
 const debug = {
   info: D(NAMESPACE),

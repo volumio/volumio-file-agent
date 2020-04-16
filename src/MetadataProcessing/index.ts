@@ -6,7 +6,7 @@ import { filter } from 'rxjs/operators'
 import * as zmq from 'zeromq'
 
 import { SOCKET_ADDRESS } from './constants'
-import { log } from './debug'
+import { debug } from './debug'
 import { JobQueue } from './JobQueue'
 import { ResponseStream } from './ResponseStream'
 import { Job, JobSuccess } from './Worker/types'
@@ -18,7 +18,7 @@ const workersSet = new Set<ChildProcess>()
 
 process.on('exit', () => {
   workersSet.forEach((worker) => {
-    log(`Killing worker [${worker.pid}]`)
+    debug.info(`Killing worker [${worker.pid}]`)
     worker.kill()
   })
 })
@@ -37,10 +37,10 @@ function spawnWorker(isTypescript: boolean) {
 
   workersSet.add(worker)
 
-  log(`Spawned worker [${worker.pid}]`)
+  debug.info(`Spawned worker [${worker.pid}]`)
 
   worker.once('exit', () => {
-    log(`Worker died [${worker.pid}]`)
+    debug.info(`Worker died [${worker.pid}]`)
     workersSet.delete(worker)
     spawnWorker(isTypescript)
   })
@@ -67,7 +67,7 @@ export const MetadataProcessing = ({
           if (error) {
             reject(new Error(error))
           } else {
-            log(`ZMQ Dealer bound to ${SOCKET_ADDRESS}`)
+            debug.info(`ZMQ Dealer bound to ${SOCKET_ADDRESS}`)
             resolve()
           }
         })
