@@ -16,8 +16,11 @@
     "outDir": "./dist",
     "paths": {
       "@adapters/*": ["./src/adapters/*"],
+      "@Agent": ["./src/Agent"],
+      "@Agent/*": ["./src/Agent/*"],
       "@fs": ["./src/fs"],
       "@fs/*": ["./src/fs/*"],
+      "@HTTPServer": ["./src/HTTPServer"],
       "@HTTPServer/*": ["./src/HTTPServer/*"],
       "@ports/*": ["./src/ports/*"]
     },
