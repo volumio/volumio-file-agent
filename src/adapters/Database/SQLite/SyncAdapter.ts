@@ -128,7 +128,7 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
         album = @album,
         trackNumber = @trackNumber,
         diskNumber = @diskNumber,
-    year
+        year = @year
       WHERE
         mountPoint = @mountPoint AND
         folder = @folder AND
@@ -267,79 +267,6 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
       },
     ),
   }
-
-  // const insertFileStatement = db.prepare<Omit<StoredFile, 'favorite'>>(`
-  //   INSERT INTO mediaFiles
-  //       (
-  //           mountPoint,
-  //           folder,
-  //           name,
-  //           processingStatus,
-  //           size,
-  //           modifiedOn,
-  //           title,
-  //           duration,
-  //           sampleRate,
-  //           artist,
-  //           albumArtist,
-  //           composer,
-  //           album,
-  //           trackNumber,
-  //           diskNumber,
-  //           year
-  //       )
-  //   VALUES
-  //       (
-  //           @mountPoint,
-  //           @folder,
-  //           @name,
-  //           @processingStatus,
-  //           @size,
-  //           @modifiedOn,
-  //           @title,
-  //           @duration,
-  //           @sampleRate,
-  //           @artist,
-  //           @albumArtist,
-  //           @composer,
-  //           @album,
-  //           @trackNumber,
-  //           @diskNumber,
-  //           @year
-  //       )
-  // `)
-  // const updateFileStatement = db.prepare<Omit<StoredFile, 'favorite'>>(`
-  //   UPDATE mediaFiles
-  //   SET
-  //       processingStatus = @processingStatus,
-  //       size = @size,
-  //       modifiedOn = @modifiedOn,
-  //       title = @title,
-  //       duration = @duration,
-  //       sampleRate = @sampleRate,
-  //       artist = @artist,
-  //       albumArtist = @albumArtist,
-  //       composer = @composer,
-  //       album = @album,
-  //       trackNumber = @trackNumber,
-  //       diskNumber = @diskNumber,
-  //       year = @year
-  //   WHERE
-  //       mountPoint = @mountPoint AND
-  //       folder = @folder AND
-  //       name = @name
-  // `)
-  // const storeFileTransaction = db.transaction(
-  //   (file: Omit<StoredFile, 'favorite'>) => {
-  //     const foundFile: StoredFile | undefined = getFileStatement.get(file)
-
-  //     if (foundFile === undefined) {
-  //       insertFileStatement.run(file)
-  //     } else {
-  //       updateFileStatement.run(file)
-  //     }
-  //   },
-  // )
 
   const deleteMediaFiles: SyncAdapter['deleteMediaFiles'] = (mediaFileIDs) => {
     try {
