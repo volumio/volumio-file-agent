@@ -9,6 +9,7 @@ export class Initial1587032173928 implements MigrationInterface {
      */
     await queryRunner.query(`
         CREATE TABLE mediaFiles (
+            mountPoint TEXT NOT NULL,
             folder TEXT NOT NULL,
             name TEXT NOT NULL,
             processingStatus TEXT NOT NULL,
@@ -26,7 +27,7 @@ export class Initial1587032173928 implements MigrationInterface {
             diskNumber INTEGER,
             year INTEGER,
 
-            PRIMARY KEY (folder, name)
+            PRIMARY KEY (mountPoint, folder, name)
         ) WITHOUT ROWID;
     `)
 
