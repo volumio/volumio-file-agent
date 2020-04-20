@@ -76,11 +76,11 @@ export const SQLitePersistencyAdapter = async ({
   if (debug.usecase.enabled) {
     internalEmitter.on('usecaseExecution', (report) =>
       debug.usecase(
-        `[%d ms] %s <-- %s`,
+        `[%d ms - %s] <-- %s`,
         report.duration.toFixed(1),
         report.outcome._tag === 'Right'
           ? 'OK'
-          : `Error: ${report.outcome.left}`,
+          : `ERROR: ${report.outcome.left}`,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         `${report.usecase}(${(report.arguments as any[])
           .map((x) => JSON.stringify(x))
@@ -88,14 +88,6 @@ export const SQLitePersistencyAdapter = async ({
       ),
     )
   }
-
-  /**
-   * Setup the observables of the API usecases executions
-   */
-  const usecaseExecutionReportStream = fromEvent<UsecaseExecutionReport>(
-    (internalEmitter as unknown) as EventEmitter<string>,
-    'usecaseExecution',
-  )
 
   const syncAdapter = SyncAdapter(db)
 
@@ -126,10 +118,18 @@ export const SQLitePersistencyAdapter = async ({
     }
   }, Object.create(null))
 
+  /**
+   * Create an observable of all the API usecases executions
+   */
+  const usecaseExecutionReportStream = fromEvent<UsecaseExecutionReport>(
+    (internalEmitter as unknown) as EventEmitter<string>,
+    'usecaseExecution',
+  )
+
   return right({
     ...asyncEmittingAdapter,
     usecaseExecutions: {
-      queries: usecaseExecutionReportStream.pipe<QueryUsecaseExecutionReport>(
+      queries: usecaseExecutionReportStream.pipe(
         filter((report): report is QueryUsecaseExecutionReport =>
           (QUERIES_USECASES as string[]).includes(report.usecase),
         ),
