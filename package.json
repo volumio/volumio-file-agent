@@ -4,7 +4,7 @@
   "private": true,
   "description": "",
   "scripts": {
-    "build": "rm -rf dist && tsc",
+    "build": "rm -rf dist && tsc --build tsconfig.json",
     "start": "DEBUG=fa:* node dist/main",
     "try": "npm run build && npm run start"
   },
