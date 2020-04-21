@@ -7,8 +7,8 @@ export const isDirectory: FilesystemPort['isDirectory'] = (path) =>
     fs.stat(path, (error, stats) => {
       if (error) {
         resolve(left(error))
+      } else {
+        resolve(right(stats.isDirectory()))
       }
-
-      resolve(right(stats.isDirectory()))
     })
   })
