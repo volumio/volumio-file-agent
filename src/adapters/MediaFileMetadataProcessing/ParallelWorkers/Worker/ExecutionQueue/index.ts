@@ -2,19 +2,19 @@ import { queue } from 'async'
 import { isLeft } from 'fp-ts/lib/Either'
 
 import { debug } from '../debug'
-import { Job, jobProcessing, JobResult } from './jobProcessing'
+import { execution, ExecutionResult, JobToExecute } from './execution'
 
 /**
  * This states how many files a worker
  * can process concurrently
  */
-const MAX_CONCURRENT_PROCESSING = 3
+const MAX_CONCURRENT_PROCESSING = 4
 
-export const JobQueue = (): JobQueue => {
-  const internalQueue = queue(jobProcessing, MAX_CONCURRENT_PROCESSING)
+export const ExecutionQueue = (): ExecutionQueue => {
+  const internalQueue = queue(execution, MAX_CONCURRENT_PROCESSING)
 
   return {
-    process: (job) =>
+    add: (job) =>
       new Promise((resolve) => {
         debug.info.enabled &&
           debug.info(
@@ -23,7 +23,7 @@ export const JobQueue = (): JobQueue => {
             job.file.folder,
             job.file.name,
           )
-        internalQueue.push<JobResult>(job, (_, result) => {
+        internalQueue.push<ExecutionResult>(job, (_, result) => {
           if (debug.info.enabled && result) {
             if (isLeft(result)) {
               debug.error(
@@ -48,8 +48,8 @@ export const JobQueue = (): JobQueue => {
   }
 }
 
-export type JobQueue = {
-  process: (job: Job) => Promise<JobResult>
+export type ExecutionQueue = {
+  add: (job: JobToExecute) => Promise<ExecutionResult>
 }
 
-export { Job, JobResult, JobSuccess } from './jobProcessing'
+export { JobToExecute, ExecutionResult, SuccessfulJob } from './execution'

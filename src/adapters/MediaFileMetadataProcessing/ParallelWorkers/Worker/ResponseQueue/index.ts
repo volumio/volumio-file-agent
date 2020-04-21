@@ -1,7 +1,7 @@
 import { isLeft } from 'fp-ts/lib/Either'
 import * as zmq from 'zeromq'
 
-import { JobResult } from '../JobQueue'
+import { ExecutionResult } from '../ExecutionQueue'
 
 export const ResponseQueue = (router: zmq.Socket): ResponseQueue => {
   return {
@@ -30,5 +30,5 @@ export const ResponseQueue = (router: zmq.Socket): ResponseQueue => {
 }
 
 export type ResponseQueue = {
-  add: (result: JobResult) => void
+  add: (result: ExecutionResult) => void
 }

@@ -4,7 +4,7 @@ import * as zmq from 'zeromq'
 
 import { SOCKET_ADDRESS } from '../constants'
 import { debug } from './debug'
-import { JobQueue } from './JobQueue'
+import { ExecutionQueue } from './ExecutionQueue'
 import { ResponseQueue } from './ResponseQueue'
 
 async function main() {
@@ -12,23 +12,22 @@ async function main() {
   router.connect(SOCKET_ADDRESS)
   debug.info(`ZMQ Router connected to ${SOCKET_ADDRESS}`)
 
-  const jobQueue = JobQueue()
+  const executionQueue = ExecutionQueue()
   const responseQueue = ResponseQueue(router)
 
-  const enqueueRequest = (...request: Buffer[]) => {
+  const processRequest = async (...request: Buffer[]) => {
     const [requester, jobId, serializedFile] = request
-    jobQueue
-      .process({
-        requester,
-        id: jobId,
-        file: JSON.parse(serializedFile.toString()),
-      })
-      .then((result) => responseQueue.add(result))
+    const result = await executionQueue.add({
+      id: jobId,
+      requester,
+      file: JSON.parse(serializedFile.toString()),
+    })
+    responseQueue.add(result)
   }
 
-  router.on('message', enqueueRequest)
+  router.on('message', processRequest)
   router.on('close', () => {
-    router.removeListener('message', enqueueRequest)
+    router.removeListener('message', processRequest)
   })
 
   process.once('exit', () => {

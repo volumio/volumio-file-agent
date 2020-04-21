@@ -2,9 +2,9 @@ import { Either, left, right } from 'fp-ts/lib/Either'
 import { Observable, Subject } from 'rxjs'
 import * as zmq from 'zeromq'
 
-import { JobSuccess } from './Worker/types'
+import { SuccessfulJob } from './Worker/types'
 
-export const ResponseStream = (dealer: zmq.Socket): Observable<Response> => {
+export const ResponsesStream = (dealer: zmq.Socket): Observable<Response> => {
   const subject = new Subject<Response>()
 
   const streamResponse = (...parts: Buffer[]) => {
@@ -29,10 +29,11 @@ export const ResponseStream = (dealer: zmq.Socket): Observable<Response> => {
   dealer.once('close', () => {
     dealer.removeListener('message', streamResponse)
   })
+
   return subject
 }
 
 export type Response = {
   id: string
-  result: Either<Error, JobSuccess['file']>
+  result: Either<Error, SuccessfulJob['file']>
 }
