@@ -1,33 +1,51 @@
 import { queue } from 'async'
 
-import { Dependencies, Execution } from './Execution'
+import { Dependencies, Execution, ExecutionReport } from './Execution'
 
 export const MountPointProcessingQueue = ({
   fs,
   processFolder,
 }: Dependencies): MountPointProcessingQueue => {
-  const enqueuedMountPoints = new Set<string>()
+  const registeredHandlersByMountPoint = new Map<
+    string,
+    ((report: ExecutionReport) => void)[]
+  >()
 
   const internalQueue = queue(Execution({ fs, processFolder }), 3)
 
   return {
     add: (mountPointID) => {
-      if (enqueuedMountPoints.has(mountPointID)) {
-        return
+      const shouldEnqueue =
+        registeredHandlersByMountPoint.has(mountPointID) === false
+
+      const promise = new Promise<ExecutionReport>((resolve) => {
+        registeredHandlersByMountPoint.set(
+          mountPointID,
+          (
+            registeredHandlersByMountPoint.get(mountPointID) || []
+          ).concat((report) => resolve(report)),
+        )
+      })
+
+      if (shouldEnqueue) {
+        internalQueue.push<ExecutionReport>(mountPointID, (_, report) => {
+          const handlers = registeredHandlersByMountPoint.get(mountPointID)
+          if (report && handlers) {
+            handlers.forEach((fn) => fn(report))
+          }
+          registeredHandlersByMountPoint.delete(mountPointID)
+        })
       }
 
-      enqueuedMountPoints.add(mountPointID)
-      internalQueue.push(mountPointID, () => {
-        enqueuedMountPoints.delete(mountPointID)
-      })
+      return promise
     },
     getEnqueuedMountPoints: () => {
-      return [...enqueuedMountPoints.values()].sort()
+      return [...registeredHandlersByMountPoint.keys()].sort()
     },
   }
 }
 
 export type MountPointProcessingQueue = {
-  add: (mountPointID: string) => void
+  add: (mountPointID: string) => Promise<ExecutionReport>
   getEnqueuedMountPoints: () => string[]
 }
