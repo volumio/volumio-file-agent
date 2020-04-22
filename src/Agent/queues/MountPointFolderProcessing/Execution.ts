@@ -8,6 +8,7 @@ import now from 'performance-now'
 
 export const Execution = ({
   db,
+  enqueueMediaFileProcessing,
   fs,
 }: Dependencies): AsyncResultIterator<
   MountPointFolderToProcess,
@@ -114,7 +115,7 @@ export const Execution = ({
   }
 
   /**
-   * Update DB with new PENDING files
+   * Update DB with new (or updated) PENDING files
    */
   if (fileNamesToAddToDB.length) {
     const additionResult = await db.addPendingMediaFilesToFolder(
@@ -140,7 +141,14 @@ export const Execution = ({
       })
     }
 
-    result.updatedMediaFiles = additionResult.right
+    const { right: updatedMediaFiles } = additionResult
+
+    /**
+     * ...and enqueue them for processing
+     */
+    updatedMediaFiles.forEach(enqueueMediaFileProcessing)
+
+    result.updatedMediaFiles = updatedMediaFiles
   }
 
   done(null, {
@@ -168,7 +176,8 @@ export type ExecutionReport = {
   >
 }
 
-type Dependencies = {
-  fs: FilesystemPort
+export type Dependencies = {
   db: DatabasePort
+  enqueueMediaFileProcessing: (mediaFile: MediaFile) => void
+  fs: FilesystemPort
 }

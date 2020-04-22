@@ -1,22 +1,19 @@
 import { MountPointFolderProcessingQueue } from '@Agent/queues/MountPointFolderProcessing'
-import { FilesystemPort } from '@ports/Filesystem'
+import { MountPointScanningQueue } from '@Agent/queues/MountPointScanning'
 import { AsyncResultIterator } from 'async'
 import { isRight } from 'fp-ts/lib/Either'
 import now from 'performance-now'
 
-import { MEDIA_FILE_EXTENSIONS } from '../../constants'
-
 export const Execution = ({
-  fs,
   processFolder,
+  scanMountPoint,
 }: Dependencies): AsyncResultIterator<string, ExecutionReport, never> => async (
   mountPoint,
   done,
 ) => {
   const start = now()
 
-  // Scan files under MountPoint
-  const found = await fs.findFilesInTree(mountPoint, MEDIA_FILE_EXTENSIONS)
+  const found = await scanMountPoint(mountPoint)
 
   const reports = await Promise.all(
     found.folders.map((folder) =>
@@ -63,6 +60,6 @@ export type ExecutionReport = {
 }
 
 export type Dependencies = {
-  fs: FilesystemPort
   processFolder: MountPointFolderProcessingQueue['add']
+  scanMountPoint: MountPointScanningQueue['add']
 }

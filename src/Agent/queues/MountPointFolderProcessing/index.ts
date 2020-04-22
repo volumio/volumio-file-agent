@@ -1,8 +1,7 @@
-import { DatabasePort } from '@ports/Database'
-import { FilesystemPort } from '@ports/Filesystem'
 import { queue } from 'async'
 
 import {
+  Dependencies,
   Execution,
   ExecutionReport,
   MountPointFolderToProcess,
@@ -10,9 +9,13 @@ import {
 
 export const MountPointFolderProcessingQueue = ({
   db,
+  enqueueMediaFileProcessing,
   fs,
 }: Dependencies): MountPointFolderProcessingQueue => {
-  const internalQueue = queue(Execution({ db, fs }), 3)
+  const internalQueue = queue(
+    Execution({ db, enqueueMediaFileProcessing, fs }),
+    3,
+  )
 
   return {
     add: async (mountPointFolder) => {
@@ -27,9 +30,4 @@ export const MountPointFolderProcessingQueue = ({
 
 export type MountPointFolderProcessingQueue = {
   add: (mountPointFolder: MountPointFolderToProcess) => Promise<ExecutionReport>
-}
-
-type Dependencies = {
-  db: DatabasePort
-  fs: FilesystemPort
 }

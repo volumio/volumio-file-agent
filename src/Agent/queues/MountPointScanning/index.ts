@@ -2,19 +2,24 @@ import { queue } from 'async'
 
 import { Dependencies, Execution, ExecutionReport } from './Execution'
 
-export const MountPointProcessingQueue = ({
-  processFolder,
-  scanMountPoint,
-}: Dependencies): MountPointProcessingQueue => {
+export const MountPointScanningQueue = ({
+  fs,
+}: Dependencies): MountPointScanningQueue => {
   const registeredHandlersByMountPoint = new Map<
     string,
     ((report: ExecutionReport) => void)[]
   >()
 
-  const internalQueue = queue(Execution({ processFolder, scanMountPoint }), 3)
+  const internalQueue = queue(
+    Execution({ fs }),
+    /**
+     * We do execute filesystem scan through `find` serially
+     */
+    1,
+  )
 
   return {
-    add: (mountPointID) => {
+    add: async (mountPointID) => {
       const shouldEnqueue =
         registeredHandlersByMountPoint.has(mountPointID) === false
 
@@ -39,13 +44,9 @@ export const MountPointProcessingQueue = ({
 
       return promise
     },
-    getEnqueuedMountPoints: () => {
-      return [...registeredHandlersByMountPoint.keys()].sort()
-    },
   }
 }
 
-export type MountPointProcessingQueue = {
+export type MountPointScanningQueue = {
   add: (mountPointID: string) => Promise<ExecutionReport>
-  getEnqueuedMountPoints: () => string[]
 }
