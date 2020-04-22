@@ -178,17 +178,6 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
   const transaction = {
     addPendingMediaFilesToFolder: db.transaction(
       (folder: FolderID, files: MediaFileToAddToFolder[]): MediaFile[] => {
-        const allMountPointsResult = statements.selectAllMountPoints.all() as Array<{
-          mountPoint: string
-        }>
-        if (
-          allMountPointsResult.find(
-            ({ mountPoint }) => mountPoint === folder.mountPoint,
-          ) === undefined
-        ) {
-          throw new Error('MOUNT_POINT_NOT_FOUND')
-        }
-
         files.forEach((file) => {
           const stmtParams = {
             ...folder,
@@ -361,9 +350,6 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
     try {
       return right(transaction.addPendingMediaFilesToFolder(folder, files))
     } catch (error) {
-      if (error.message === 'MOUNT_POINT_NOT_FOUND') {
-        return left('MOUNT_POINT_NOT_FOUND')
-      }
       return left('PERSISTENCY_FAILURE')
     }
   }

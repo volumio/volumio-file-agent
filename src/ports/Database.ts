@@ -57,9 +57,7 @@ export type DatabasePort = {
   addPendingMediaFilesToFolder: (
     folder: FolderID,
     files: MediaFileToAddToFolder[],
-  ) => Promise<
-    Either<'PERSISTENCY_FAILURE' | 'MOUNT_POINT_NOT_FOUND', MediaFile[]>
-  >
+  ) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
 
   /**
    * Ensures a set of MediaFile(s) is no longer present
