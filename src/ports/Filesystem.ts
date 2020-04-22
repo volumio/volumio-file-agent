@@ -9,14 +9,7 @@ export type FilesystemPort = {
   findFilesInTree: (
     treeRoot: string,
     extensions?: string[],
-  ) => Promise<{
-    errors: string[]
-    totalFiles: number
-    folders: Array<{
-      path: string
-      fileNames: string[]
-    }>
-  }>
+  ) => Promise<FilesFindingResult>
 
   isDirectory: (path: string) => Promise<Either<Error, boolean>>
 
@@ -30,4 +23,13 @@ export type FileStat = {
   createdOn: Date
   modifiedOn: Date
   size: number
+}
+
+export type FilesFindingResult = {
+  errors: string[]
+  totalFiles: number
+  folders: Array<{
+    path: string
+    fileNames: string[]
+  }>
 }
