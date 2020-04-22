@@ -7,13 +7,14 @@ export type FilesystemPort = {
    * Can filter the results by a set of specified extensions (without leading `.`)
    */
   findFilesInTree: (
-    rootFolder: string,
+    treeRoot: string,
     extensions?: string[],
   ) => Promise<{
     errors: string[]
-    files: Array<{
-      folder: string
-      name: string
+    totalFiles: number
+    folders: Array<{
+      path: string
+      fileNames: string[]
     }>
   }>
 

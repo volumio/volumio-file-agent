@@ -1,17 +1,17 @@
 import { FilesystemPort } from '@ports/Filesystem'
 import { exec } from 'child_process'
-import { uniq } from 'lodash'
+import { groupBy, uniq } from 'lodash'
 import path from 'path'
 import now from 'performance-now'
 
 import { debug } from './debug'
 
 export const findFilesInTree: FilesystemPort['findFilesInTree'] = (
-  rootFolder: string,
+  treeRoot: string,
   extensions?: string[],
 ) =>
   new Promise((resolve) => {
-    const cmd = `find -L ${rootFolder} -type f ${
+    const cmd = `find -L ${treeRoot} -type f ${
       extensions && extensions.length
         ? makeExtensionFilteringArgument(extensions)
         : ''
@@ -21,7 +21,7 @@ export const findFilesInTree: FilesystemPort['findFilesInTree'] = (
     debug.info.enabled &&
       debug.info(
         `[CALL] findFilesInTree(%s, %s extensions)`,
-        rootFolder,
+        treeRoot,
         extensions ? `${extensions.length}` : 'ALL',
       )
     exec(
@@ -48,14 +48,24 @@ export const findFilesInTree: FilesystemPort['findFilesInTree'] = (
         debug.info.enabled &&
           debug.info(
             `[RESULT] findFilesInTree(%s, %s extensions): %d files, %d errors, %d milliseconds, %d bytes`,
-            rootFolder,
+            treeRoot,
             extensions ? `${extensions.length}` : 'ALL',
             files.length,
             errors.length,
             duration,
             stdout.length,
           )
-        resolve({ errors, files })
+
+        resolve({
+          errors,
+          totalFiles: files.length,
+          folders: Object.entries(groupBy(files, 'folder')).map(
+            ([folder, files]) => ({
+              path: folder,
+              fileNames: files.map(({ name }) => name).sort(),
+            }),
+          ),
+        })
       },
     )
   })
