@@ -25,6 +25,7 @@ const QUERIES_USECASES: TupleFromUnion<
 const MUTATIONS_USECASES: TupleFromUnion<
   MutationUsecaseExecutionReport['usecase']
 > = [
+  'addPendingMediaFilesToFolder',
   'deleteMediaFiles',
   'deleteMountPoint',
   'setMediaFileFavoriteState',

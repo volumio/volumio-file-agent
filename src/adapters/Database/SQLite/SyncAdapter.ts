@@ -8,12 +8,15 @@ import {
   MediaFileBinaryProcessingStatus,
   MediaFileID,
   MediaFileMetadata,
+  MediaFileToAddToFolder,
   MountPointID,
   MountPointStats,
+  MountPointWithStats,
   PromiseType,
 } from '@ports/Database'
 import { Database } from 'better-sqlite3'
 import { left, right } from 'fp-ts/lib/Either'
+import { sortBy } from 'lodash'
 import path from 'path'
 import { Overwrite } from 'simplytyped'
 
@@ -25,7 +28,7 @@ const MEDIAFILE_ID_PROPS: TupleFromUnion<keyof MediaFileID> = [
 
 const MEDIAFILE_BINARY_INFO_PROPS: TupleFromUnion<
   keyof MediaFileBinaryInfos
-> = ['processingStatus', 'size', 'modifiedOn']
+> = ['size', 'modifiedOn']
 
 const MEDIAFILE_METADATA_PROPS: TupleFromUnion<keyof MediaFileMetadata> = [
   'title',
@@ -44,25 +47,32 @@ const MEDIAFILE_PROPS = [
   ...MEDIAFILE_ID_PROPS,
   ...MEDIAFILE_BINARY_INFO_PROPS,
   ...MEDIAFILE_METADATA_PROPS,
+  'processingStatus',
   'favorite',
 ]
 
 export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
   const statements = {
-    selectAllArtistsInMountPoint: db.prepare<[MountPointID]>(`
-      SELECT
-        DISTINCT artist
-      FROM mediaFiles
-      WHERE
-        artist IS NOT NULL AND
-        mountPoint = ?
+    addMediaFile: db.prepare<
+      [MediaFileIDColumns & MediaFileBinaryInfosColumns]
+    >(`
+      INSERT INTO mediaFiles
+        (mountPoint, folder, name, processingStatus, size, modifiedOn)
+      VALUES
+        (@mountPoint, @folder, @name, 'PENDING', @size, @modifiedOn)
     `),
-    selectAllAlbumsInMountPoint: db.prepare<[MountPointID]>(`
-      SELECT
-        DISTINCT album
+    deleteMediaFile: db.prepare<[MediaFileIDColumns]>(`
+      DELETE
       FROM mediaFiles
       WHERE
-        album IS NOT NULL AND
+        mountPoint = @mountPoint AND
+        folder = @folder AND
+        name = @name
+    `),
+    deleteMountPoint: db.prepare<[MountPointID]>(`
+      DELETE
+      FROM mediaFiles
+      WHERE
         mountPoint = ?
     `),
     getMountPointTotalMusicDuration: db.prepare<[MountPointID]>(`
@@ -73,18 +83,34 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
         duration IS NOT NULL AND
         mountPoint = ?
     `),
+    selectAllAlbumsInMountPoint: db.prepare<[MountPointID]>(`
+      SELECT
+        DISTINCT album
+      FROM mediaFiles
+      WHERE
+        album IS NOT NULL AND
+        mountPoint = ?
+    `),
+    selectAllArtistsInMountPoint: db.prepare<[MountPointID]>(`
+      SELECT
+        DISTINCT artist
+      FROM mediaFiles
+      WHERE
+        artist IS NOT NULL AND
+        mountPoint = ?
+    `),
+    selectAllMediaFilesInFolder: db.prepare<[FolderID]>(`
+      SELECT
+        ${MEDIAFILE_PROPS.join(',')}
+      FROM mediaFiles
+      WHERE
+        mountPoint = @mountPoint AND
+        folder = @folder
+    `),
     selectAllMountPoints: db.prepare(`
       SELECT
         DISTINCT mountPoint
       FROM mediaFiles
-    `),
-    selectMountPointProcessingStats: db.prepare<[MountPointID]>(`
-      SELECT
-        processingStatus,
-        COUNT(*) as total
-      FROM mediaFiles
-      WHERE
-        mountPoint = ?
     `),
     selectMediaFile: db.prepare<[MediaFileIDColumns]>(`
       SELECT
@@ -95,13 +121,26 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
         folder = @folder AND
         name = @name
     `),
-    selectAllMediaFilesInFolder: db.prepare<[FolderID]>(`
+    selectMountPointProcessingStats: db.prepare<[MountPointID]>(`
       SELECT
-        ${MEDIAFILE_PROPS.join(',')}
+        processingStatus,
+        COUNT(*) as total
       FROM mediaFiles
       WHERE
+        mountPoint = ?
+    `),
+    setMediaFileProcessingStatusToPending: db.prepare<
+      [MediaFileIDColumns & MediaFileBinaryInfosColumns]
+    >(`
+      UPDATE mediaFiles
+      SET
+        processingStatus = 'PENDING',
+        size = @size,
+        modifiedOn = @modifiedOn
+      WHERE
         mountPoint = @mountPoint AND
-        folder = @folder
+        folder = @folder AND
+        name = @name
     `),
     updateMediaFileFavoriteState: db.prepare<
       [MediaFileIDColumns & { favorite: 0 | 1 }]
@@ -134,23 +173,70 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
         folder = @folder AND
         name = @name
     `),
-    deleteMediaFile: db.prepare<[MediaFileID]>(`
-      DELETE
-      FROM mediaFiles
-      WHERE
-        mountPoint = @mountPoint AND
-        folder = @folder AND
-        name = @name
-    `),
-    deleteMountPoint: db.prepare<[MountPointID]>(`
-      DELETE
-      FROM mediaFiles
-      WHERE
-        mountPoint = ?
-    `),
   }
 
   const transaction = {
+    addPendingMediaFilesToFolder: db.transaction(
+      (folder: FolderID, files: MediaFileToAddToFolder[]): MediaFile[] => {
+        const allMountPointsResult = statements.selectAllMountPoints.all() as Array<{
+          mountPoint: string
+        }>
+        if (
+          allMountPointsResult.find(
+            ({ mountPoint }) => mountPoint === folder.mountPoint,
+          ) === undefined
+        ) {
+          throw new Error('MOUNT_POINT_NOT_FOUND')
+        }
+
+        files.forEach((file) => {
+          const stmtParams = {
+            ...folder,
+            name: file.name,
+            size: file.binary.size,
+            modifiedOn: file.binary.modifiedOn.toISOString(),
+          }
+
+          const fileDoesNotExist =
+            statements.selectMediaFile.get({
+              ...folder,
+              name: file.name,
+            }) === undefined
+
+          if (fileDoesNotExist) {
+            statements.addMediaFile.run(stmtParams)
+          } else {
+            statements.setMediaFileProcessingStatusToPending.run(stmtParams)
+          }
+        })
+
+        return sortBy(files, ({ name }) => name)
+          .map(
+            (file) =>
+              statements.selectMediaFile.get({
+                ...folder,
+                name: file.name,
+              }) as MediaFileRecord,
+          )
+          .map(fromMediaFileRecordToMediaFile)
+      },
+    ),
+    getAllMountPointsWithStats: db.transaction((): MountPointWithStats[] => {
+      const allMountPointsResult = statements.selectAllMountPoints.all() as Array<{
+        mountPoint: string
+      }>
+
+      return allMountPointsResult
+        .map(({ mountPoint }) => mountPoint)
+        .sort()
+        .map((mountPointID) => {
+          const stats = transaction.getMountPointStats(mountPointID)
+          return {
+            id: mountPointID,
+            ...stats,
+          }
+        })
+    }),
     getMountPointStats: db.transaction(
       (mountPointID: MountPointID): MountPointStats => {
         const allMountPointsResult = statements.selectAllMountPoints.all() as Array<{
@@ -268,6 +354,20 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
     ),
   }
 
+  const addPendingMediaFilesToFolder: SyncAdapter['addPendingMediaFilesToFolder'] = (
+    folder,
+    files,
+  ) => {
+    try {
+      return right(transaction.addPendingMediaFilesToFolder(folder, files))
+    } catch (error) {
+      if (error.message === 'MOUNT_POINT_NOT_FOUND') {
+        return left('MOUNT_POINT_NOT_FOUND')
+      }
+      return left('PERSISTENCY_FAILURE')
+    }
+  }
+
   const deleteMediaFiles: SyncAdapter['deleteMediaFiles'] = (mediaFileIDs) => {
     try {
       return right(transaction.deleteMediaFiles(mediaFileIDs))
@@ -290,6 +390,14 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
         mountPoint: string
       }> = statements.selectAllMountPoints.all()
       return right(result.map(({ mountPoint }) => mountPoint))
+    } catch (error) {
+      return left('PERSISTENCY_FAILURE')
+    }
+  }
+
+  const getAllMountPointsWithStats: SyncAdapter['getAllMountPointsWithStats'] = () => {
+    try {
+      return right(transaction.getAllMountPointsWithStats())
     } catch (error) {
       return left('PERSISTENCY_FAILURE')
     }
@@ -350,9 +458,11 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
   }
 
   return {
+    addPendingMediaFilesToFolder,
     deleteMediaFiles,
     deleteMountPoint,
     getAllMountPoints,
+    getAllMountPointsWithStats,
     getMediaFilesInFolder,
     getMountPointStats,
     setMediaFileFavoriteState,
@@ -369,8 +479,8 @@ const fromMediaFileRecordToMediaFile = (
     name: record.name,
   },
   path: path.resolve(record.folder, record.name),
+  processingStatus: record.processingStatus,
   binary: {
-    processingStatus: record.processingStatus,
     size: record.size,
     modifiedOn: new Date(record.modifiedOn),
   },
@@ -398,6 +508,7 @@ type SyncAdapter = {
 type MediaFileRecord = MediaFileIDColumns &
   MediaFileBinaryInfosColumns &
   MediaFileMetadataColumns & {
+    processingStatus: MediaFileBinaryProcessingStatus
     favorite: 0 | 1
   }
 

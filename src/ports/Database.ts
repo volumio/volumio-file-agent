@@ -23,6 +23,7 @@ export type QueryUsecaseExecutionReport = UnionizeProperties<
 export type MutationUsecaseExecutionReport = UnionizeProperties<
   Pick<
     APIExecutionReportsByUsecase,
+    | 'addPendingMediaFilesToFolder'
     | 'deleteMediaFiles'
     | 'deleteMountPoint'
     | 'setMediaFileFavoriteState'
@@ -47,6 +48,20 @@ export type APIExecutionReportsByUsecase = {
 
 export type DatabasePort = {
   /**
+   * Adds a collection of MediaFiles under a specific folder
+   * Those files processing status should be marked as PENDING.
+   *
+   * If some of the files already exist, they will be marked as PENDING
+   * and their "size" and "modifiedOn" infos will be updated.
+   */
+  addPendingMediaFilesToFolder: (
+    folder: FolderID,
+    files: MediaFileToAddToFolder[],
+  ) => Promise<
+    Either<'PERSISTENCY_FAILURE' | 'MOUNT_POINT_NOT_FOUND', MediaFile[]>
+  >
+
+  /**
    * Ensures a set of MediaFile(s) is no longer present
    */
   deleteMediaFiles: (
@@ -65,6 +80,10 @@ export type DatabasePort = {
    */
   getAllMountPoints: () => Promise<
     Either<'PERSISTENCY_FAILURE', MountPointID[]>
+  >
+
+  getAllMountPointsWithStats: () => Promise<
+    Either<'PERSISTENCY_FAILURE', MountPointWithStats[]>
   >
 
   /**
@@ -105,6 +124,13 @@ export type DatabasePort = {
   >
 }
 
+export type MountPointWithStats = CombineObjects<
+  {
+    id: MountPointID
+  },
+  MountPointStats
+>
+
 export type MountPointID = string
 
 export type MountPointStats = {
@@ -126,9 +152,15 @@ export type FolderID = {
   folder: string
 }
 
+export type MediaFileToAddToFolder = {
+  name: string
+  binary: MediaFileBinaryInfos
+}
+
 export type MediaFile = {
   id: MediaFileID
   path: string
+  processingStatus: MediaFileBinaryProcessingStatus
   binary: MediaFileBinaryInfos
   favorite: boolean
   metadata: MediaFileMetadata
@@ -142,7 +174,6 @@ export type MediaFileID = CombineObjects<
 >
 
 export type MediaFileBinaryInfos = {
-  processingStatus: MediaFileBinaryProcessingStatus
   size: number
   modifiedOn: Date
 }
