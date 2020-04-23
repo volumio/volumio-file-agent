@@ -29,7 +29,7 @@ const MUTATIONS_USECASES: TupleFromUnion<
   'deleteMediaFiles',
   'deleteMountPoint',
   'setMediaFileFavoriteState',
-  'setMediaFilePrcessingStatusToError',
+  'setMediaFileProcessingStatusToError',
   'updateMediaFileMetadata',
 ]
 

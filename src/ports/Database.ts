@@ -134,7 +134,7 @@ export type DatabasePort = {
 
 export type MountPointWithStats = CombineObjects<
   {
-    id: MountPointID
+    path: MountPointID
   },
   MountPointStats
 >

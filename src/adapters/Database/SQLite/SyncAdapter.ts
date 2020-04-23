@@ -232,7 +232,7 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
         .map((mountPointID) => {
           const stats = transaction.getMountPointStats(mountPointID)
           return {
-            id: mountPointID,
+            path: mountPointID,
             ...stats,
           }
         })
