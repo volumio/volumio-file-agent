@@ -78,7 +78,7 @@ export const SQLitePersistencyAdapter = async ({
   if (debug.usecase.enabled) {
     internalEmitter.on('usecaseExecution', (report) =>
       debug.usecase(
-        `[%d ms - %s] <-- %s`,
+        `[%d ms - %s] %s`,
         report.duration.toFixed(1),
         report.outcome._tag === 'Right'
           ? 'OK'
