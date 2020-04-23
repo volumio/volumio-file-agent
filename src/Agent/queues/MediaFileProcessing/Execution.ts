@@ -24,6 +24,8 @@ export const Execution = ({
   })
 
   if (isLeft(processingResult)) {
+    await db.setMediaFileProcessingStatusToError(mediaFile.id)
+
     done(null, {
       duration: getDurationFrom(start),
       result: processingResult,
@@ -32,6 +34,7 @@ export const Execution = ({
     const {
       right: { metadata },
     } = processingResult
+
     const updateDBResult = await db.updateMediaFileMetadata(
       mediaFile.id,
       fromProcessedMetadataToMediafileMetadata(metadata),
