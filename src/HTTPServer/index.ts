@@ -43,6 +43,7 @@ export const HTTPServer = ({ agent }: Configuration): Server => {
 
   const errorHandler: ErrorRequestHandler = (error, _, res, __) => {
     res.status(500).send({
+      success: false,
       error: {
         message: error.message,
       },
