@@ -1,5 +1,6 @@
 import { queue } from 'async'
 
+import { debug } from './debug'
 import { Dependencies, Execution, ExecutionReport } from './Execution'
 
 export const MountPointScanningQueue = ({
@@ -37,9 +38,22 @@ export const MountPointScanningQueue = ({
           const handlers = registeredHandlersByMountPoint.get(mountPointID)
           if (report && handlers) {
             handlers.forEach((fn) => fn(report))
+
+            debug.info.enabled &&
+              debug.info(
+                `Completed scanning of mount point "%s" in %d ms. Found %d files in %d folders. Had %d errors`,
+                mountPointID,
+                report.duration,
+                report.totalFiles,
+                report.folders.length,
+                report.errors.length,
+              )
           }
           registeredHandlersByMountPoint.delete(mountPointID)
         })
+
+        debug.info.enabled &&
+          debug.info(`Enqueued scanning of mount point %s`, mountPointID)
       }
 
       return promise

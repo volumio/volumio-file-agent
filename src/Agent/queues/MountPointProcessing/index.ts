@@ -1,5 +1,6 @@
 import { queue } from 'async'
 
+import { debug } from './debug'
 import { Dependencies, Execution, ExecutionReport } from './Execution'
 
 export const MountPointProcessingQueue = ({
@@ -32,9 +33,21 @@ export const MountPointProcessingQueue = ({
           const handlers = registeredHandlersByMountPoint.get(mountPointID)
           if (report && handlers) {
             handlers.forEach((fn) => fn(report))
+
+            debug.info.enabled &&
+              debug.info(
+                `Completed processing of mount point "%s" in %d ms. %d media files were updated, %d media files were removed`,
+                mountPointID,
+                report.duration,
+                report.updatedMediaFilesOnDB,
+                report.deletedMediaFilesFromDB,
+              )
           }
           registeredHandlersByMountPoint.delete(mountPointID)
         })
+
+        debug.info.enabled &&
+          debug.info(`Enqueued processing of mount point %s`, mountPointID)
       }
 
       return promise
