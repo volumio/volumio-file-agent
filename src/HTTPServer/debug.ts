@@ -1,6 +1,6 @@
 import D from 'debug'
 
-const NAMESPACE = 'fa:http_server'
+const NAMESPACE = 'fa:httpServer'
 
 const debug = {
   info: D(NAMESPACE),
