@@ -11,7 +11,7 @@ export const findFilesInTree: FilesystemPort['findFilesInTree'] = (
   extensions?: string[],
 ) =>
   new Promise((resolve) => {
-    const cmd = `find -L ${treeRoot} -type f ${
+    const cmd = `find -L "${treeRoot}" -type f ${
       extensions && extensions.length
         ? makeExtensionFilteringArgument(extensions)
         : ''
@@ -55,6 +55,12 @@ export const findFilesInTree: FilesystemPort['findFilesInTree'] = (
             duration,
             stdout.length,
           )
+
+        debug.error.enabled &&
+          errors.length > 0 &&
+          errors.forEach((error) => {
+            debug.error(`[ERROR] %s`, error)
+          })
 
         resolve({
           errors,
