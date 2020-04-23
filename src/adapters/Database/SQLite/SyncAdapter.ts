@@ -253,7 +253,7 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
         const stats = statements.selectMountPointProcessingStats.all(
           mountPointID,
         ) as Array<{
-          processinStatus: MediaFileBinaryProcessingStatus
+          processingStatus: MediaFileBinaryProcessingStatus
           total: number
         }>
 
@@ -278,18 +278,18 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
             total: stats.reduce<number>((n, { total }) => n + total, 0),
             errored:
               stats.find(
-                ({ processinStatus }) =>
-                  processinStatus === MediaFileBinaryProcessingStatus.ERROR,
+                ({ processingStatus }) =>
+                  processingStatus === MediaFileBinaryProcessingStatus.ERROR,
               )?.total || 0,
             pending:
               stats.find(
-                ({ processinStatus }) =>
-                  processinStatus === MediaFileBinaryProcessingStatus.PENDING,
+                ({ processingStatus }) =>
+                  processingStatus === MediaFileBinaryProcessingStatus.PENDING,
               )?.total || 0,
             processed:
               stats.find(
-                ({ processinStatus }) =>
-                  processinStatus === MediaFileBinaryProcessingStatus.DONE,
+                ({ processingStatus }) =>
+                  processingStatus === MediaFileBinaryProcessingStatus.DONE,
               )?.total || 0,
           },
           music: {
