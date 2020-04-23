@@ -27,6 +27,7 @@ export type MutationUsecaseExecutionReport = UnionizeProperties<
     | 'deleteMediaFiles'
     | 'deleteMountPoint'
     | 'setMediaFileFavoriteState'
+    | 'setMediaFileProcessingStatusToError'
     | 'updateMediaFileMetadata'
   >
 >
@@ -107,6 +108,15 @@ export type DatabasePort = {
   setMediaFileFavoriteState: (
     mediaFileID: MediaFileID,
     state: boolean,
+  ) => Promise<
+    Either<'PERSISTENCY_FAILURE' | 'MEDIA_FILE_NOT_FOUND', MediaFile>
+  >
+
+  /**
+   * Sets the processing status of a MediaFile to ERROR
+   */
+  setMediaFileProcessingStatusToError: (
+    mediaFileID: MediaFileID,
   ) => Promise<
     Either<'PERSISTENCY_FAILURE' | 'MEDIA_FILE_NOT_FOUND', MediaFile>
   >

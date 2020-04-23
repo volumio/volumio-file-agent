@@ -129,6 +129,15 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
       WHERE
         mountPoint = ?
     `),
+    setMediaFileProcessingStatusToError: db.prepare<[MediaFileIDColumns]>(`
+      UPDATE mediaFiles
+      SET
+        processingStatus = 'ERROR'
+      WHERE
+        mountPoint = @mountPoint AND
+        folder = @folder AND
+        name = @name
+    `),
     setMediaFileProcessingStatusToPending: db.prepare<
       [MediaFileIDColumns & MediaFileBinaryInfosColumns]
     >(`
@@ -158,6 +167,8 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
     >(`
       UPDATE mediaFiles
       SET
+        processingStatus = 'DONE',
+        
         title = @title,
         duration = @duration,
         sampleRate = @sampleRate,
@@ -319,6 +330,25 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
         return fromMediaFileRecordToMediaFile(updatedMediaFile)
       },
     ),
+    setMediaFileProcessingStatusToError: db.transaction(
+      (mediaFileID: MediaFileID): MediaFile => {
+        const currentMediaFile = statements.selectMediaFile.get(mediaFileID) as
+          | MediaFileRecord
+          | undefined
+
+        if (currentMediaFile === undefined) {
+          throw new Error('MEDIA_FILE_NOT_FOUND')
+        }
+
+        statements.setMediaFileProcessingStatusToError.run(mediaFileID)
+
+        const updatedMediaFile = statements.selectMediaFile.get(
+          mediaFileID,
+        ) as MediaFileRecord
+
+        return fromMediaFileRecordToMediaFile(updatedMediaFile)
+      },
+    ),
     updateMediaFileMetadata: db.transaction(
       (mediaFileID: MediaFileID, metadata: MediaFileMetadata): MediaFile => {
         const currentMediaFile = statements.selectMediaFile.get(mediaFileID) as
@@ -429,6 +459,19 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
     }
   }
 
+  const setMediaFileProcessingStatusToError: SyncAdapter['setMediaFileProcessingStatusToError'] = (
+    mediaFileID,
+  ) => {
+    try {
+      return right(transaction.setMediaFileProcessingStatusToError(mediaFileID))
+    } catch (error) {
+      if (error.message === 'MEDIA_FILE_NOT_FOUND') {
+        return left('MEDIA_FILE_NOT_FOUND')
+      }
+      return left('PERSISTENCY_FAILURE')
+    }
+  }
+
   const updateMediaFileMetadata: SyncAdapter['updateMediaFileMetadata'] = (
     mediaFileID,
     metadata,
@@ -452,6 +495,7 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
     getMediaFilesInFolder,
     getMountPointStats,
     setMediaFileFavoriteState,
+    setMediaFileProcessingStatusToError,
     updateMediaFileMetadata,
   }
 }
