@@ -4,7 +4,7 @@ The Agent's HTTP server provides an interface to control the Agent itself and wh
 
 The server's endponts are developed and documented according to the [OpenApi Specification](https://www.openapis.org/) standard.
 
-This allows us to have a better and easier **developer experience** which mainly revolves around the idea of having _`code as the single poin of truth`_.
+This allows us to have a better and easier **developer experience** which mainly revolves around the idea of having _`code as the single point of truth`_.
 
 ## Development iteration flow and DEX
 
