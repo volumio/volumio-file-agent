@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express'
 
-import { Backend } from './index'
+import { Backend } from '.'
 
 export const OpenApiBackendMiddleware = ({
   backend,

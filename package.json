@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rm -rf dist && npm run openApi:make-spec && tsc --build tsconfig.json",
     "start": "DEBUG=fa:* node dist/main",
-    "openApi:doc": "spot docs src/HTTPServer/OpenApiBackend/spot.ts",
+    "openApi:doc": "spot docs src/HTTPServer/OpenApiBackend/contract.ts",
     "openApi:make-spec": "./dev/make-openapi-spec.sh",
     "try": "npm run build && npm run start"
   },

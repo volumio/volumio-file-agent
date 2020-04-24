@@ -1,5 +1,3 @@
-import {} from '@airtasker/spot'
-
 export interface ValidationErrorResponse {
   success: false
   error: {

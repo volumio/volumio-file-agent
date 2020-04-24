@@ -20,17 +20,3 @@ export interface ParamsDictionary {
 export interface QueryDictionary {
   [key: string]: string | QueryDictionary | Array<string | QueryDictionary>
 }
-
-// export type HandlerResponse<T> = T extends Handler<
-//   ParamsDictionary,
-//   QueryDictionary,
-//   any,
-//   infer Output
-// >
-//   ? CombineObjects<
-//       Output,
-//       {
-//         type: 'response'
-//       }
-//     >
-//   : never

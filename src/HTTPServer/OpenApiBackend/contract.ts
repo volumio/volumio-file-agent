@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-empty-function */
-import './endpoints/add-mount-point'
-import './endpoints/get-all-mount-points'
-import './endpoints/health-check'
+import './contract/endpoints'
 
 import { api } from '@airtasker/spot'
 

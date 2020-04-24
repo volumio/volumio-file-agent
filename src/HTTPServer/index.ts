@@ -9,8 +9,6 @@ import { debug } from './debug'
 import { buildOpenApiBackend, OpenApiBackendMiddleware } from './OpenApiBackend'
 
 export const HTTPServer = async ({ agent }: Configuration): Promise<Server> => {
-  const openApiBackend = await buildOpenApiBackend({ agent })
-
   const app = express()
 
   const server = http.createServer(app)
@@ -21,7 +19,7 @@ export const HTTPServer = async ({ agent }: Configuration): Promise<Server> => {
       if (typeof address === 'string') {
         debug.info(`Server listening on address %s`, address)
       } else if (address !== null) {
-        debug.info(`Server listening on port %d`, address.port)
+        debug.info(`Server listening on %s:%d`, address.address, address.port)
       }
     }
   })
@@ -67,6 +65,7 @@ export const HTTPServer = async ({ agent }: Configuration): Promise<Server> => {
    * The middleware decides wheter to terminate the req-res cycle,
    * or to call `next()`
    */
+  const openApiBackend = await buildOpenApiBackend({ agent })
   app.use(
     jsonBodyParser(),
     OpenApiBackendMiddleware({ backend: openApiBackend }),
