@@ -34,7 +34,7 @@ async function main() {
     mediaFileMetadataProcessing,
   })
 
-  const server = HTTPServer({
+  const server = await HTTPServer({
     agent,
   })
 

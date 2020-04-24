@@ -24,6 +24,7 @@
       "@HTTPServer/*": ["./src/HTTPServer/*"],
       "@ports/*": ["./src/ports/*"]
     },
+    "resolveJsonModule": true,
     "sourceMap": true,
     "strict": true, // We need this setting in order to make `TupleFromUnion<U>` in src/adapters/Database/SQLite/TupleFromUnion.ts work
     "strictNullChecks": true,

@@ -6,51 +6,12 @@ import onFinished from 'on-finished'
 import now from 'performance-now'
 
 import { debug } from './debug'
-import { AddMountPointHandler } from './handlers/addMountPoint'
-import { GetMountPointHandler } from './handlers/getMountPoint'
-import { GetStatsHandler } from './handlers/getStats'
+import { buildOpenApiBackend, OpenApiBackendMiddleware } from './OpenApiBackend'
 
-export const HTTPServer = ({ agent }: Configuration): Server => {
+export const HTTPServer = async ({ agent }: Configuration): Promise<Server> => {
+  const openApiBackend = await buildOpenApiBackend({ agent })
+
   const app = express()
-
-  if (debug.info.enabled) {
-    app.use((req, res, next) => {
-      const start = now()
-
-      onFinished(res, function (_, res) {
-        const duration = now() - start
-        debug.info(
-          `[%d] %s %s - %d ms`,
-          res.statusCode,
-          req.method.toUpperCase(),
-          req.path,
-          duration,
-        )
-      })
-      next()
-    })
-  }
-
-  app.get('/healthz', (_, res) => {
-    res.sendStatus(200)
-  })
-
-  app.get('/stats', GetStatsHandler({ agent }))
-
-  app.get('/mountpoint', GetMountPointHandler({ agent }))
-
-  app.post('/mountpoints', jsonBodyParser(), AddMountPointHandler({ agent }))
-
-  const errorHandler: ErrorRequestHandler = (error, _, res, __) => {
-    res.status(500).send({
-      success: false,
-      error: {
-        message: error.message,
-      },
-    })
-  }
-
-  app.use(errorHandler)
 
   const server = http.createServer(app)
 
@@ -76,6 +37,56 @@ export const HTTPServer = ({ agent }: Configuration): Server => {
       debug.error(`Server error: %s`, error.message)
     }
   })
+
+  if (debug.info.enabled) {
+    /**
+     * Wrap req-res cycle execution to be
+     * able to log Response outcome informations
+     */
+    app.use((req, res, next) => {
+      const start = now()
+
+      onFinished(res, function (_, res) {
+        const duration = now() - start
+        debug.info(
+          `[%d] %d ms: %s %s`,
+          res.statusCode,
+          duration.toFixed(2),
+          req.method.toUpperCase(),
+          req.path,
+        )
+      })
+
+      next()
+    })
+  }
+
+  /**
+   * Wire in the OpenApi backend
+   *
+   * The middleware decides wheter to terminate the req-res cycle,
+   * or to call `next()`
+   */
+  app.use(
+    jsonBodyParser(),
+    OpenApiBackendMiddleware({ backend: openApiBackend }),
+  )
+
+  /**
+   * Catch eventual error to prevent bubbling up
+   */
+  const errorHandler: ErrorRequestHandler = (error, _, res, __) => {
+    debug.error.enabled &&
+      debug.error(`[CAUGHT ERROR] %s: %s`, error.name, error.message)
+
+    res.status(500).send({
+      success: false,
+      error: {
+        message: error.message,
+      },
+    })
+  }
+  app.use(errorHandler)
 
   return server
 }

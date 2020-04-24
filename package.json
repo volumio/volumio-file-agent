@@ -4,8 +4,10 @@
   "private": true,
   "description": "",
   "scripts": {
-    "build": "rm -rf dist && tsc --build tsconfig.json",
+    "build": "rm -rf dist && npm run openApi:make-spec && tsc --build tsconfig.json",
     "start": "DEBUG=fa:* node dist/main",
+    "openApi:doc": "spot docs src/HTTPServer/OpenApiBackend/spot.ts",
+    "openApi:make-spec": "./dev/make-openapi-spec.sh",
     "try": "npm run build && npm run start"
   },
   "repository": {
@@ -25,6 +27,7 @@
     "module-alias": "^2.2.2",
     "music-metadata": "^6.3.7",
     "on-finished": "^2.3.0",
+    "openapi-backend": "^3.4.1",
     "performance-now": "^2.1.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.5.5",
@@ -34,6 +37,7 @@
     "zeromq": "^5.2.0"
   },
   "devDependencies": {
+    "@airtasker/spot": "^1.1.2",
     "@types/async": "^3.2.0",
     "@types/better-sqlite3": "^5.4.0",
     "@types/core-js": "^2.5.3",
