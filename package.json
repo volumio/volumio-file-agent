@@ -6,8 +6,9 @@
   "scripts": {
     "build": "rm -rf dist && npm run openApi:make-spec && tsc --build tsconfig.json",
     "start": "DEBUG=fa:* node dist/main",
+    "start:ts": "DEBUG=fa:* node -r ts-node/register src/main.ts",
     "openApi:doc": "spot docs src/HTTPServer/OpenApiBackend/contract.ts",
-    "openApi:make-spec": "./dev/make-openapi-spec.sh",
+    "openApi:make-spec": "spot generate -c src/HTTPServer/OpenApiBackend/contract.ts -g openapi3 -l json -o ./src/HTTPServer/OpenApiBackend",
     "try": "npm run build && npm run start"
   },
   "repository": {
@@ -37,7 +38,7 @@
     "zeromq": "^5.2.0"
   },
   "devDependencies": {
-    "@airtasker/spot": "^1.1.2",
+    "@airtasker/spot": "1.0.1",
     "@types/async": "^3.2.0",
     "@types/better-sqlite3": "^5.4.0",
     "@types/core-js": "^2.5.3",
