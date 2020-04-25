@@ -21,10 +21,10 @@ Thanks to the [spot](https://www.npmjs.com/package/@airtasker/spot) library, we 
 Just run:
 
 ```bash
-npm run openApi:doc && open http://localhost:8080
+npm run openApi:doc
 ```
 
-to see the outcome.
+and point your browser at `http://localhost:8080` to see the outcome.
 
 ### Implement the API specification in code
 
