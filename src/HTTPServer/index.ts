@@ -62,7 +62,7 @@ export const HTTPServer = async ({ agent }: Configuration): Promise<Server> => {
   /**
    * Wire in the OpenApi backend
    *
-   * The middleware decides wheter to terminate the req-res cycle,
+   * The middleware decides whether to terminate the req-res cycle,
    * or to call `next()`
    */
   const openApiBackend = await buildOpenApiBackend({ agent })
