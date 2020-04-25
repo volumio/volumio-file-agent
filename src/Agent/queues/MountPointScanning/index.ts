@@ -41,19 +41,18 @@ export const MountPointScanningQueue = ({
 
             debug.info.enabled &&
               debug.info(
-                `Completed scanning of mount point "%s" in %d ms. Found %d files in %d folders. Had %d errors`,
-                mountPointID,
-                report.duration,
+                `[COMPLETED - %d ms - %d files in %d folders - %d errors] %s`,
+                report.duration.toFixed(2),
                 report.totalFiles,
                 report.folders.length,
                 report.errors.length,
+                mountPointID,
               )
           }
           registeredHandlersByMountPoint.delete(mountPointID)
         })
 
-        debug.info.enabled &&
-          debug.info(`Enqueued scanning of mount point %s`, mountPointID)
+        debug.info.enabled && debug.info(`[ENQUEUED] %s`, mountPointID)
       }
 
       return promise

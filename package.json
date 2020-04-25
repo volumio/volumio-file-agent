@@ -5,10 +5,10 @@
   "description": "",
   "scripts": {
     "build": "rm -rf dist && npm run openApi:make-spec && tsc --build tsconfig.json",
-    "start": "DEBUG=fa:* node dist/main",
-    "start:ts": "DEBUG=fa:* node -r ts-node/register src/main.ts",
+    "start": "node dist/main",
+    "start:ts": "DEBUG=fa:*,-fa:database:sqlite:query node -r ts-node/register src/main.ts",
     "openApi:doc": "spot docs src/HTTPServer/OpenApiBackend/contract.ts",
-    "openApi:make-spec": "spot generate -c src/HTTPServer/OpenApiBackend/contract.ts -g openapi3 -l json -o ./src/HTTPServer/OpenApiBackend",
+    "openApi:json": "spot generate -c src/HTTPServer/OpenApiBackend/contract.ts -g openapi3 -l json -o ./src/HTTPServer/OpenApiBackend",
     "try": "npm run build && npm run start"
   },
   "repository": {

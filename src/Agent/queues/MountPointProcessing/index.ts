@@ -36,18 +36,17 @@ export const MountPointProcessingQueue = ({
 
             debug.info.enabled &&
               debug.info(
-                `Completed processing of mount point "%s" in %d ms. %d media files were updated, %d media files were removed`,
-                mountPointID,
-                report.duration,
+                `[COMPLETED - %d ms - %d added/updated - %d removed] %s`,
+                report.duration.toFixed(2),
                 report.updatedMediaFilesOnDB,
                 report.deletedMediaFilesFromDB,
+                mountPointID,
               )
           }
           registeredHandlersByMountPoint.delete(mountPointID)
         })
 
-        debug.info.enabled &&
-          debug.info(`Enqueued processing of mount point %s`, mountPointID)
+        debug.info.enabled && debug.info(`[ENQUEUED] %s`, mountPointID)
       }
 
       return promise

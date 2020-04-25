@@ -42,25 +42,24 @@ export const MediaFileProcessingQueue = ({
             if (debug.info.enabled && isRight(report.result)) {
               debug.info.enabled &&
                 debug.info(
-                  `Completed processing of file "%s" in %d ms`,
+                  `[PROCESSED - %d ms] %s`,
+                  report.duration.toFixed(2),
                   mediaFilePath,
-                  report.duration,
                 )
             } else if (debug.error.enabled && isLeft(report.result)) {
               debug.error(
-                `Encountered error while processing file %s: %s`,
-                mediaFilePath,
+                `[ERROR] "%s" while processing file %s`,
                 typeof report.result.left === 'string'
                   ? report.result.left
                   : report.result.left.message,
+                mediaFilePath,
               )
             }
           }
           registeredHandlersByMediaFilePath.delete(mediaFilePath)
         })
 
-        debug.info.enabled &&
-          debug.info(`Enqueued processing of file %s`, mediaFilePath)
+        debug.info.enabled && debug.info(`[ENQUEUED] %s`, mediaFilePath)
       }
 
       return promise

@@ -18,7 +18,7 @@ export const ExecutionQueue = (): ExecutionQueue => {
       new Promise((resolve) => {
         debug.info.enabled &&
           debug.info(
-            `[QUEUED] Job %s for file %s/%s`,
+            `[QUEUED - %s] %s/%s`,
             job.id.toString(),
             job.file.folder,
             job.file.name,
@@ -27,15 +27,15 @@ export const ExecutionQueue = (): ExecutionQueue => {
           if (debug.info.enabled && result) {
             if (isLeft(result)) {
               debug.error(
-                `[ERROR]: Job %s for file %s/%s: %s`,
+                `[ERROR - %s] "%s" for file %s/%s`,
                 job.id.toString(),
+                result.left.error.message,
                 job.file.folder,
                 job.file.name,
-                result.left.error.message,
               )
             } else {
               debug.info(
-                `[SUCCESS]: Job %s for file %s/%s`,
+                `[SUCCESS - %s] %s/%s`,
                 job.id.toString(),
                 job.file.folder,
                 job.file.name,

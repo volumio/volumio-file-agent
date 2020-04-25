@@ -30,11 +30,11 @@ export const MountPointFolderProcessingQueue = ({
           if (debug.info.enabled && isRight(report.result)) {
             debug.info.enabled &&
               debug.info(
-                `Completed processing of folder: %s in %d ms. %d media files were updated, %d media files were removed`,
-                mountPointFolder.folder,
-                report.duration,
+                `[COMPLETED - %d ms - %d added/updated - %d removed] %s`,
+                report.duration.toFixed(2),
                 report.result.right.updatedMediaFiles.length,
                 report.result.right.deletedMediaFiles.length,
+                mountPointFolder.folder,
               )
           } else if (debug.error.enabled && isLeft(report.result)) {
             debug.info.enabled &&
@@ -47,10 +47,7 @@ export const MountPointFolderProcessingQueue = ({
         })
 
         debug.info.enabled &&
-          debug.info(
-            `Enqueued processing of folder: %s`,
-            mountPointFolder.folder,
-          )
+          debug.info(`[ENQUEUED] %s`, mountPointFolder.folder)
       })
     },
   }
