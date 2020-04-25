@@ -1,6 +1,6 @@
 # HTTP Server
 
-The Agent's HTTP server provides an interface to control the Agent itself and which provides the capability to perform queries about the mantained list of MediaFiles.
+The Agent's HTTP server provides an interface to control the Agent itself and perform queries about its mantained list of MediaFiles.
 
 The server's endponts are developed and documented according to the [OpenApi Specification](https://www.openapis.org/) standard.
 
