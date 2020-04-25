@@ -8,7 +8,7 @@ This allows us to have a better and easier **developer experience** which mainly
 
 ## Development iteration flow and DEX
 
-The first time-saver for API consumption (if you are hacking the Volumio Core) and one of the thing that we want to strictly mantain is the API documentation.
+The first time-saver for API consumption (if you are hacking the Volumio Core) and one of the thing that we want to strictly maintain is the API documentation.
 
 Even if the HTTP protocol itself does not come with any concept of [_typization_](https://en.wikipedia.org/wiki/Type_system), projects like OpenApi Specification try to provide some tooling to bring the _API schema_ concept to the table so we (the devs), can give ourselves some automation and compile time check in order to simplify and speed up our daily work.
 
