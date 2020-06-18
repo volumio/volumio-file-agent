@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { body, endpoint, pathParams, request, response } from '@airtasker/spot'
+import {
+  body,
+  endpoint,
+  Integer,
+  pathParams,
+  request,
+  response,
+} from '@airtasker/spot'
 
 import { PersistencyFailureResponse } from '../error-responses'
 import { Album } from './entities'
@@ -19,7 +26,7 @@ export class GetYear {
   request(
     @pathParams
     pathParams: {
-      num: number
+      num: Integer
     },
   ) {}
 
