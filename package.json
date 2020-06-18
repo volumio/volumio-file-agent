@@ -4,7 +4,7 @@
   "private": true,
   "description": "",
   "scripts": {
-    "build": "rm -rf dist && npm run openApi:make-spec && tsc --build tsconfig.json",
+    "build": "rm -rf dist && npm run openApi:json && tsc --build tsconfig.json",
     "start": "node dist/main",
     "start:ts": "DEBUG=fa:*,-fa:database:sqlite:query node -r ts-node/register src/main.ts",
     "openApi:doc": "spot docs src/HTTPServer/OpenApiBackend/contract.ts",
