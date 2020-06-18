@@ -33,5 +33,9 @@ export class GetAllGenres {
 
 export interface GetAllGenresSuccessResponse {
   success: true
+
+  /**
+   * Genres are retured in alphabetical order
+   */
   genres: Genre[]
 }
