@@ -3,8 +3,10 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { body, endpoint, request, response } from '@airtasker/spot'
 
-import { ServerErrorResponse } from './server-error-response'
-import { ValidationErrorResponse } from './validation-error-response'
+import {
+  PersistencyFailureResponse,
+  ValidationErrorResponse,
+} from './error-responses'
 
 /**
  * Add a MountPoint to the agent knowledge
@@ -21,19 +23,31 @@ export class AddMountPoint {
     body: AddMountPointRequestBody,
   ) {}
 
+  /**
+   * Success
+   */
   @response({ status: 201 })
   success(@body body: AddMountPointSuccessResponse) {}
 
+  /**
+   * Bad request
+   */
   @response({ status: 400 })
   badRequest(
     @body body: AddMountPointBadRequestResponse | ValidationErrorResponse,
   ) {}
 
+  /**
+   * Either MountPoint does not exist or is not a folder
+   */
   @response({ status: 404 })
   notFound(@body body: AddMountPointNotFoundResponse) {}
 
+  /**
+   * Persistency failure
+   */
   @response({ status: 500 })
-  persistencyFailure(@body body: ServerErrorResponse) {}
+  persistencyFailure(@body body: PersistencyFailureResponse) {}
 }
 
 export interface AddMountPointRequestBody {

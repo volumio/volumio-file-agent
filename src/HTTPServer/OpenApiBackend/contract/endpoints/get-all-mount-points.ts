@@ -10,7 +10,7 @@ import {
   response,
 } from '@airtasker/spot'
 
-import { ServerErrorResponse } from './server-error-response'
+import { PersistencyFailureResponse } from './error-responses'
 
 /**
  * Get all known MountPoints, along with their status
@@ -24,11 +24,17 @@ export class GetAllMountPoints {
   @request
   request() {}
 
+  /**
+   * Success
+   */
   @response({ status: 200 })
   success(@body body: GetAllMountPointsSuccessResponse) {}
 
+  /**
+   * Persistency failure
+   */
   @response({ status: 500 })
-  persistencyFailure(@body body: ServerErrorResponse) {}
+  persistencyFailure(@body body: PersistencyFailureResponse) {}
 }
 
 export interface GetAllMountPointsSuccessResponse {

@@ -4,8 +4,9 @@
 import { endpoint, request, response } from '@airtasker/spot'
 
 /**
- * Actually simply responds with 204 status code.
- * Could be used later by consumers to check if service staus is good.
+ * Actually simply responds with a 204 status code.
+ *
+ * Could be used later by consumers to check if service status is good.
  */
 @endpoint({
   method: 'GET',
