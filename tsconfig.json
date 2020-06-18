@@ -12,6 +12,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noErrorTruncation": true,
+    "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "outDir": "./dist",
     "paths": {
