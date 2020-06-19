@@ -1,15 +1,16 @@
-import { DatabasePort, MediaFile } from '@ports/Database'
-import { FileStat, FilesystemPort } from '@ports/Filesystem'
 import { AsyncResultIterator } from 'async'
 import { Either, isLeft, right } from 'fp-ts/lib/Either'
 import { uniq } from 'lodash'
 import path from 'path'
 import now from 'performance-now'
 
+import { FileStat, FilesystemPort } from '../../ports/Filesystem'
+import { MediaFile, PersistencyPort } from '../../ports/Persistency'
+
 export const Execution = ({
-  db,
   enqueueMediaFileProcessing,
   fs,
+  persistency,
 }: Dependencies): AsyncResultIterator<
   MountPointFolderToProcess,
   ExecutionReport,
@@ -20,7 +21,7 @@ export const Execution = ({
   /**
    * Fetch MediaFiles actually stored on DB
    */
-  const getFolderFilesResult = await db.getMediaFilesInFolder({
+  const getFolderFilesResult = await persistency.getMediaFilesInFolder({
     mountPoint: folderToProcess.mountPoint,
     folder: folderToProcess.folder,
   })
@@ -102,7 +103,7 @@ export const Execution = ({
    * Delete from DB
    */
   if (mediaFilesInDBToDelete.length) {
-    const deletionResult = await db.deleteMediaFiles(
+    const deletionResult = await persistency.deleteMediaFiles(
       mediaFilesInDBToDelete.map(({ id }) => id),
     )
     if (isLeft(deletionResult)) {
@@ -118,7 +119,7 @@ export const Execution = ({
    * Update DB with new (or updated) PENDING files
    */
   if (fileNamesToAddToDB.length) {
-    const additionResult = await db.addPendingMediaFilesToFolder(
+    const additionResult = await persistency.addPendingMediaFilesToFolder(
       {
         mountPoint: folderToProcess.mountPoint,
         folder: folderToProcess.folder,
@@ -177,7 +178,7 @@ export type ExecutionReport = {
 }
 
 export type Dependencies = {
-  db: DatabasePort
   enqueueMediaFileProcessing: (mediaFile: MediaFile) => void
   fs: FilesystemPort
+  persistency: PersistencyPort
 }

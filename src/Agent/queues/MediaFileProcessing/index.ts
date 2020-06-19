@@ -1,13 +1,13 @@
-import { MediaFile } from '@ports/Database'
 import { queue } from 'async'
 import { isLeft, isRight } from 'fp-ts/lib/Either'
 import path from 'path'
 
+import { MediaFile } from '../../ports/Persistency'
 import { debug } from './debug'
 import { Dependencies, Execution, ExecutionReport } from './Execution'
 
 export const MediaFileProcessingQueue = ({
-  db,
+  persistency,
   processMediaFile,
 }: Dependencies): MediaFileProcessingQueue => {
   const registeredHandlersByMediaFilePath = new Map<
@@ -15,7 +15,7 @@ export const MediaFileProcessingQueue = ({
     ((report: ExecutionReport) => void)[]
   >()
 
-  const internalQueue = queue(Execution({ db, processMediaFile }), 300)
+  const internalQueue = queue(Execution({ persistency, processMediaFile }), 300)
 
   return {
     add: async (mediaFile) => {

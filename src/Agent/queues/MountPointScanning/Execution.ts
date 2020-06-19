@@ -1,7 +1,8 @@
-import { FilesFindingResult, FilesystemPort } from '@ports/Filesystem'
 import { AsyncResultIterator } from 'async'
 import now from 'performance-now'
 import { CombineObjects } from 'simplytyped'
+
+import { FilesFindingResult, FilesystemPort } from '../../ports/Filesystem'
 
 export const Execution = ({
   fs,

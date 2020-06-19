@@ -10,12 +10,12 @@ import {
 } from './Execution'
 
 export const MountPointFolderProcessingQueue = ({
-  db,
   enqueueMediaFileProcessing,
   fs,
+  persistency,
 }: Dependencies): MountPointFolderProcessingQueue => {
   const internalQueue = queue(
-    Execution({ db, enqueueMediaFileProcessing, fs }),
+    Execution({ enqueueMediaFileProcessing, fs, persistency }),
     3,
   )
 

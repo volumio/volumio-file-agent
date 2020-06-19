@@ -1,15 +1,16 @@
-import { DatabasePort, MediaFile } from '@ports/Database'
-import {
-  MediaFileMetadataProcessingPort,
-  ProcessedMediaFile,
-  ProcessingError,
-} from '@ports/MediaFileMetadataProcessing'
 import { AsyncResultIterator } from 'async'
 import { Either, isLeft, right } from 'fp-ts/lib/Either'
 import now from 'performance-now'
 
+import {
+  MediaFileMetadataProcessingPort,
+  ProcessedMediaFile,
+  ProcessingError,
+} from '../../ports/MediaFileMetadataProcessing'
+import { MediaFile, PersistencyPort } from '../../ports/Persistency'
+
 export const Execution = ({
-  db,
+  persistency,
   processMediaFile,
 }: Dependencies): AsyncResultIterator<
   MediaFile,
@@ -24,7 +25,7 @@ export const Execution = ({
   })
 
   if (isLeft(processingResult)) {
-    await db.setMediaFileProcessingStatusToError(mediaFile.id)
+    await persistency.setMediaFileProcessingStatusToError(mediaFile.id)
 
     done(null, {
       duration: getDurationFrom(start),
@@ -35,7 +36,7 @@ export const Execution = ({
       right: { metadata },
     } = processingResult
 
-    const updateDBResult = await db.updateMediaFileMetadata(
+    const updateDBResult = await persistency.updateMediaFileMetadata(
       mediaFile.id,
       fromProcessedMetadataToMediafileMetadata(metadata),
     )
@@ -52,16 +53,24 @@ const getDurationFrom = (start: number) => now() - start
 const fromProcessedMetadataToMediafileMetadata = (
   metadata: ProcessedMediaFile['metadata'],
 ): MediaFile['metadata'] => ({
-  album: metadata.common.album || null,
-  albumArtist: metadata.common.albumartist || null,
-  artist: metadata.common.artist || null,
-  composer: metadata.common.compilation || null,
-  diskNumber: metadata.common.disk.no,
-  duration: metadata.format.duration || null,
-  sampleRate: metadata.format.sampleRate || null,
   title: metadata.common.title || null,
+  artist: metadata.common.artist || null,
+  albumArtist: metadata.common.albumartist || null,
+  composers: metadata.common.composer || [],
+  album: metadata.common.album || null,
   trackNumber: metadata.common.track.no,
+  diskNumber: metadata.common.disk.no,
   year: metadata.common.year || null,
+
+  musicbrainzID: metadata.common.musicbrainz_trackid || null,
+  musicbrainzAlbumID: metadata.common.musicbrainz_albumid || null,
+  musicbrainzArtistIDs: metadata.common.musicbrainz_artistid || [],
+  musicbrainzAlbumArtistIDs: metadata.common.musicbrainz_albumartistid || [],
+
+  duration: metadata.format.duration || null,
+  bitdepth: metadata.format.bitsPerSample || null,
+  bitrate: metadata.format.bitrate || null,
+  sampleRate: metadata.format.sampleRate || null,
 })
 
 export type ExecutionReport = {
@@ -76,6 +85,6 @@ export type ExecutionReport = {
 }
 
 export type Dependencies = {
-  db: DatabasePort
+  persistency: PersistencyPort
   processMediaFile: MediaFileMetadataProcessingPort['processMediaFile']
 }
