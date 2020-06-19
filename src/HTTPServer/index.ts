@@ -1,4 +1,4 @@
-import { Agent } from '@Agent'
+import { AgentInterface } from '@Agent'
 import { json as jsonBodyParser } from 'body-parser'
 import express, { ErrorRequestHandler } from 'express'
 import http, { Server } from 'http'
@@ -91,5 +91,5 @@ export const HTTPServer = async ({ agent }: Configuration): Promise<Server> => {
 }
 
 interface Configuration {
-  agent: Agent
+  agent: AgentInterface
 }

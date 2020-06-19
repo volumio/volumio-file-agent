@@ -1,4 +1,4 @@
-import { Agent } from '@Agent'
+import { AgentInterface } from '@Agent'
 import OpenAPIBackend, { Document } from 'openapi-backend'
 import { Overwrite, OverwriteReturn } from 'simplytyped'
 
@@ -36,5 +36,5 @@ export type Backend = Overwrite<
   }
 >
 type Dependencies = {
-  agent: Agent
+  agent: AgentInterface
 }
