@@ -1,9 +1,9 @@
 import './moduleAlias'
 
-import { SQLitePersistencyAdapter } from '@adapters/Database/SQLite'
-import { NodeFilesystemAdapter } from '@adapters/Filesystem/Node'
-import { ParallelWorkersMediaFileMetadataProcessingAdapter } from '@adapters/MediaFileMetadataProcessing/ParallelWorkers'
 import { Agent } from '@Agent'
+import { NodeFilesystemAdapter } from '@Agent/adapters/Filesystem/Node'
+import { ParallelWorkersMediaFileMetadataProcessingAdapter } from '@Agent/adapters/MediaFileMetadataProcessing/ParallelWorkers'
+import { SQLitePersistencyAdapter } from '@Agent/adapters/Persistency/SQLite'
 import { HTTPServer } from '@HTTPServer'
 import { isLeft } from 'fp-ts/lib/Either'
 import path from 'path'
@@ -21,7 +21,7 @@ async function main() {
     process.exit(1)
   }
 
-  const db = persistencyAdapterResult.right
+  const persistency = persistencyAdapterResult.right
 
   const mediaFileMetadataProcessing = await ParallelWorkersMediaFileMetadataProcessingAdapter()
   process.on('exit', () => {
@@ -29,9 +29,9 @@ async function main() {
   })
 
   const agent = Agent({
-    db,
     fs,
     mediaFileMetadataProcessing,
+    persistency,
   })
 
   const server = await HTTPServer({
