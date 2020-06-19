@@ -1,5 +1,4 @@
-import './add-mount-point'
-import './get-all-mount-points'
+import './browsing'
+import './error-responses'
 import './health-check'
-import './remove-mount-point'
-import './browse'
+import './mount-points'

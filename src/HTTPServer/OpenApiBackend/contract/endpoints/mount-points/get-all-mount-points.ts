@@ -10,7 +10,7 @@ import {
   response,
 } from '@airtasker/spot'
 
-import { PersistencyFailureResponse } from './error-responses'
+import { PersistencyFailureResponse } from '../error-responses'
 
 /**
  * Get all known MountPoints, along with their status

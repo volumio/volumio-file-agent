@@ -6,7 +6,7 @@ import { body, endpoint, request, response } from '@airtasker/spot'
 import {
   PersistencyFailureResponse,
   ValidationErrorResponse,
-} from './error-responses'
+} from '../error-responses'
 
 /**
  * Remove a MountPoint from the Agent knowledge
