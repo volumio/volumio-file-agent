@@ -1,41 +1,35 @@
-import {
-  DatabasePort,
-  MountPointID,
-  MountPointWithStats,
-} from '@ports/Database'
-import { FilesystemPort } from '@ports/Filesystem'
-import { MediaFileMetadataProcessingPort } from '@ports/MediaFileMetadataProcessing'
-import { Either, isLeft, right } from 'fp-ts/lib/Either'
+import { isLeft, right } from 'fp-ts/lib/Either'
 
+import { FilesystemPort } from './ports/Filesystem'
+import { MediaFileMetadataProcessingPort } from './ports/MediaFileMetadataProcessing'
+import { PersistencyPort } from './ports/Persistency'
 import { MediaFileProcessingQueue } from './queues/MediaFileProcessing'
 import { MountPointFolderProcessingQueue } from './queues/MountPointFolderProcessing'
 import { MountPointProcessingQueue } from './queues/MountPointProcessing'
 import { MountPointScanningQueue } from './queues/MountPointScanning'
-import {
-  mountPointEcosystemValidation,
-  MountPointEcosystemValidationError,
-} from './utils/mountPointEcosystemValidation'
-import {
-  mountPointStringValidation,
-  MountPointStringValidationError,
-} from './utils/mountPointStringValidation'
+import { AgentInterface } from './types'
+import { mountPointEcosystemValidation } from './utils/mountPointEcosystemValidation'
+import { mountPointFSValidation } from './utils/mountPointFSValidation'
+import { mountPointPathValidation } from './utils/mountPointPathValidation'
+
+export { AgentInterface } from './types'
 
 export const Agent = ({
-  db,
   fs,
   mediaFileMetadataProcessing,
-}: Config): Agent => {
+  persistency,
+}: Config): AgentInterface => {
   const mountPointScanningQueue = MountPointScanningQueue({
     fs,
   })
   const mediaFileProcessingQueue = MediaFileProcessingQueue({
-    db,
+    persistency,
     processMediaFile: mediaFileMetadataProcessing.processMediaFile,
   })
   const mountPointFolderProcessingQueue = MountPointFolderProcessingQueue({
-    db,
     enqueueMediaFileProcessing: mediaFileProcessingQueue.add,
     fs,
+    persistency,
   })
   const mountPointProcessingQueue = MountPointProcessingQueue({
     processFolder: mountPointFolderProcessingQueue.add,
@@ -43,68 +37,97 @@ export const Agent = ({
   })
 
   return {
-    addMountPoint: async (str) => {
-      const validation = await mountPointStringValidation(str, fs.isDirectory)
-      if (isLeft(validation)) {
-        return validation
-      }
+    command: {
+      addMountPoint: async (mountPointPath) => {
+        const trimmedPath = mountPointPath.trim()
+        const pathWithoutTrailingSlash = trimmedPath.endsWith('/')
+          ? trimmedPath.slice(0, -1)
+          : trimmedPath
 
-      const { right: mountPoint } = validation
+        const pathValidation = mountPointPathValidation(
+          pathWithoutTrailingSlash,
+        )
+        if (isLeft(pathValidation)) {
+          return pathValidation
+        }
 
-      const databaseMountPointsResult = await db.getAllMountPoints()
-      if (isLeft(databaseMountPointsResult)) {
-        return databaseMountPointsResult
-      }
+        const fsValidation = await mountPointFSValidation(
+          pathWithoutTrailingSlash,
+          fs.isDirectory,
+        )
+        if (isLeft(fsValidation)) {
+          return fsValidation
+        }
 
-      const { right: databaseMountPoints } = databaseMountPointsResult
-      const enqueuedMountPoints = mountPointProcessingQueue.getEnqueuedMountPoints()
-      const knownMountPoints = databaseMountPoints.concat(enqueuedMountPoints)
+        const databaseMountPointsResult = await persistency.getAllMountPoints()
+        if (isLeft(databaseMountPointsResult)) {
+          return databaseMountPointsResult
+        }
 
-      const ecosystemValidationResult = mountPointEcosystemValidation(
-        mountPoint,
-        knownMountPoints,
-      )
-      if (isLeft(ecosystemValidationResult)) {
-        return ecosystemValidationResult
-      }
+        const databaseMountPoints = databaseMountPointsResult.right
+        const enqueuedMountPoints = mountPointProcessingQueue.getEnqueuedMountPoints()
+        const knownMountPoints = databaseMountPoints.concat(enqueuedMountPoints)
 
-      mountPointProcessingQueue.add(mountPoint)
+        const ecosystemValidationResult = mountPointEcosystemValidation(
+          pathWithoutTrailingSlash,
+          knownMountPoints,
+        )
+        if (isLeft(ecosystemValidationResult)) {
+          return ecosystemValidationResult
+        }
 
-      return right(undefined)
+        mountPointProcessingQueue.add(pathWithoutTrailingSlash)
+
+        return right(undefined)
+      },
+      removeMountPoint: async (mountPointPath) => {
+        // TODO: implement flow of a discarded mountPoint's informations
+        return persistency.deleteMountPoint(mountPointPath)
+      },
     },
-
-    discardMountPoint: async (mountPointID) => {
-      // TODO: implement flow of a discarded mountPoint's informations
-      await db.deleteMountPoint(mountPointID)
-    },
-
-    getAllMountPointsWithStats: async () => {
-      return db.getAllMountPointsWithStats()
+    query: {
+      allArtistsNames: async () => {
+        return right([])
+      },
+      allComposersNames: async () => {
+        return right([])
+      },
+      allGenresNames: async () => {
+        return right([])
+      },
+      allTracksByAlbum: async (_) => {
+        return right([])
+      },
+      allTracksByArtist: async (_) => {
+        return right([])
+      },
+      allTracksByComposer: async (_) => {
+        return right([])
+      },
+      allTracksByGenre: async (_) => {
+        return right([])
+      },
+      allTracksByYear: async (_) => {
+        return right([])
+      },
+      allTracksInFolder: async (_) => {
+        return right([])
+      },
+      allMountPoints: async () => {
+        return right([])
+      },
+      allYears: async () => {
+        return right([])
+      },
+      folderSubfolders: async () => {
+        return right([])
+      },
     },
   }
 }
 
-export type Agent = {
-  addMountPoint: (
-    mountPointID: MountPointID,
-  ) => Promise<
-    Either<
-      | MountPointStringValidationError
-      | 'PERSISTENCY_FAILURE'
-      | MountPointEcosystemValidationError,
-      void
-    >
-  >
-
-  discardMountPoint: (mountPointID: MountPointID) => void
-
-  getAllMountPointsWithStats: () => Promise<
-    Either<'PERSISTENCY_FAILURE', MountPointWithStats[]>
-  >
-}
-
 type Config = {
-  db: DatabasePort
   fs: FilesystemPort
   mediaFileMetadataProcessing: MediaFileMetadataProcessingPort
+  persistency: PersistencyPort
 }
