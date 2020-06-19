@@ -2,52 +2,7 @@ import { Either } from 'fp-ts/lib/Either'
 import { Observable } from 'rxjs'
 import { CombineObjects, UnionizeProperties } from 'simplytyped'
 
-export type ObservableDatabasePort = CombineObjects<
-  DatabasePort,
-  {
-    usecaseExecutions: {
-      queries: Observable<QueryUsecaseExecutionReport>
-      mutations: Observable<MutationUsecaseExecutionReport>
-      all: Observable<UsecaseExecutionReport>
-    }
-  }
->
-
-export type QueryUsecaseExecutionReport = UnionizeProperties<
-  Pick<
-    APIExecutionReportsByUsecase,
-    'getAllMountPoints' | 'getMediaFilesInFolder' | 'getMountPointStats'
-  >
->
-
-export type MutationUsecaseExecutionReport = UnionizeProperties<
-  Pick<
-    APIExecutionReportsByUsecase,
-    | 'addPendingMediaFilesToFolder'
-    | 'deleteMediaFiles'
-    | 'deleteMountPoint'
-    | 'setMediaFileFavoriteState'
-    | 'setMediaFileProcessingStatusToError'
-    | 'updateMediaFileMetadata'
-  >
->
-
-export type UsecaseExecutionReport = UnionizeProperties<
-  APIExecutionReportsByUsecase
->
-
-export type APIExecutionReportsByUsecase = {
-  [k in keyof DatabasePort]: DatabasePort[k] extends Function
-    ? {
-        usecase: k
-        duration: number
-        arguments: ArgumentsType<DatabasePort[k]>
-        outcome: PromiseType<ReturnType<DatabasePort[k]>>
-      }
-    : never
-}
-
-export type DatabasePort = {
+export type PersistencyPort = {
   /**
    * Adds a collection of MediaFiles under a specific folder
    * Those files processing status should be marked as PENDING.
@@ -192,22 +147,28 @@ export enum MediaFileBinaryProcessingStatus {
   PENDING = 'PENDING',
 }
 
-export type MediaFileMetadata = NullableProps<{
-  title: string
-  duration: number
-  sampleRate: number
-  artist: string
-  albumArtist: string
-  composer: string
-  album: string
-  trackNumber: number
-  diskNumber: number
-  year: number
-}>
+export type MediaFileMetadata = {
+  title: Maybe<string>
+  artist: Maybe<string>
+  albumArtist: Maybe<string>
+  composers: string[]
+  album: Maybe<string>
+  trackNumber: Maybe<number>
+  diskNumber: Maybe<number>
+  year: Maybe<number>
 
-type NullableProps<T> = {
-  [k in keyof T]: T[k] | null
+  musicbrainzID: Maybe<string>
+  musicbrainzAlbumID: Maybe<string>
+  musicbrainzArtistIDs: string[]
+  musicbrainzAlbumArtistIDs: string[]
+
+  duration: Maybe<number>
+  bitdepth: Maybe<number>
+  bitrate: Maybe<number>
+  sampleRate: Maybe<number>
 }
+
+type Maybe<T> = T | null
 
 export type ArgumentsType<F extends Function> = F extends (
   ...args: infer A
@@ -220,3 +181,48 @@ any
 export type PromiseType<T extends Promise<any>> = T extends Promise<infer U>
   ? U
   : never
+
+export type ObservablePersistencyPort = CombineObjects<
+  PersistencyPort,
+  {
+    usecaseExecutions: {
+      queries: Observable<QueryUsecaseExecutionReport>
+      mutations: Observable<MutationUsecaseExecutionReport>
+      all: Observable<UsecaseExecutionReport>
+    }
+  }
+>
+
+export type QueryUsecaseExecutionReport = UnionizeProperties<
+  Pick<
+    APIExecutionReportsByUsecase,
+    'getAllMountPoints' | 'getMediaFilesInFolder' | 'getMountPointStats'
+  >
+>
+
+export type MutationUsecaseExecutionReport = UnionizeProperties<
+  Pick<
+    APIExecutionReportsByUsecase,
+    | 'addPendingMediaFilesToFolder'
+    | 'deleteMediaFiles'
+    | 'deleteMountPoint'
+    | 'setMediaFileFavoriteState'
+    | 'setMediaFileProcessingStatusToError'
+    | 'updateMediaFileMetadata'
+  >
+>
+
+export type UsecaseExecutionReport = UnionizeProperties<
+  APIExecutionReportsByUsecase
+>
+
+export type APIExecutionReportsByUsecase = {
+  [k in keyof PersistencyPort]: PersistencyPort[k] extends Function
+    ? {
+        usecase: k
+        duration: number
+        arguments: ArgumentsType<PersistencyPort[k]>
+        outcome: PromiseType<ReturnType<PersistencyPort[k]>>
+      }
+    : never
+}
