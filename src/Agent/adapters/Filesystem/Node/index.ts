@@ -1,5 +1,4 @@
-import { FilesystemPort } from '@ports/Filesystem'
-
+import { FilesystemPort } from '../../../ports/Filesystem'
 import { findFilesInTree } from './findFilesInTree'
 import { isDirectory } from './isDirectory'
 import { statFile } from './statFile'

@@ -1,7 +1,7 @@
-import { FilesystemPort } from '@ports/Filesystem'
 import { left, right } from 'fp-ts/lib/Either'
 import fs from 'fs'
 
+import { FilesystemPort } from '../../../ports/Filesystem'
 import { debug } from './debug'
 
 export const statFile: FilesystemPort['statFile'] = (path) =>

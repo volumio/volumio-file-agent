@@ -1,4 +1,3 @@
-import { MediaFileMetadataProcessingPort } from '@ports/MediaFileMetadataProcessing'
 import { ChildProcess, spawn } from 'child_process'
 import { left } from 'fp-ts/lib/Either'
 import { cpus } from 'os'
@@ -7,6 +6,7 @@ import { filter } from 'rxjs/operators'
 import { CombineObjects } from 'simplytyped'
 import * as zmq from 'zeromq'
 
+import { MediaFileMetadataProcessingPort } from '../../../ports/MediaFileMetadataProcessing'
 import { SOCKET_ADDRESS } from './constants'
 import { debug } from './debug'
 import { RequestsQueue } from './RequestsQueue'

@@ -1,9 +1,9 @@
-import { FilesystemPort } from '@ports/Filesystem'
 import { exec } from 'child_process'
 import { groupBy, uniq } from 'lodash'
 import path from 'path'
 import now from 'performance-now'
 
+import { FilesystemPort } from '../../../ports/Filesystem'
 import { debug } from './debug'
 
 export const findFilesInTree: FilesystemPort['findFilesInTree'] = (

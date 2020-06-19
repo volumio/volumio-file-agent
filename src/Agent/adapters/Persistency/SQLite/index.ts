@@ -1,10 +1,3 @@
-import {
-  DatabasePort,
-  MutationUsecaseExecutionReport,
-  ObservableDatabasePort,
-  QueryUsecaseExecutionReport,
-  UsecaseExecutionReport,
-} from '@ports/Database'
 import SQLite from 'better-sqlite3'
 import EventEmitter from 'eventemitter3'
 import { Either, left, right } from 'fp-ts/lib/Either'
@@ -14,6 +7,13 @@ import { filter } from 'rxjs/operators'
 import TypedEmitter from 'typed-emitter'
 import { createConnection } from 'typeorm'
 
+import {
+  MutationUsecaseExecutionReport,
+  ObservablePersistencyPort,
+  PersistencyPort,
+  QueryUsecaseExecutionReport,
+  UsecaseExecutionReport,
+} from '../../../ports/Persistency'
 import { debug } from './debug'
 import { Initial1587032173928 } from './migrations'
 import { SyncAdapter } from './SyncAdapter'
@@ -36,7 +36,7 @@ const MUTATIONS_USECASES: TupleFromUnion<
 export const SQLitePersistencyAdapter = async ({
   databasePath,
   runMigrations,
-}: Spec): Promise<Either<'MIGRATIONS_FAILED', ObservableDatabasePort>> => {
+}: Spec): Promise<Either<'MIGRATIONS_FAILED', ObservablePersistencyPort>> => {
   /**
    * Perform migrations on adapter creation
    * if it is required
@@ -95,7 +95,7 @@ export const SQLitePersistencyAdapter = async ({
 
   const asyncEmittingAdapter = (Object.keys(
     syncAdapter,
-  ) as (keyof DatabasePort)[]).reduce<DatabasePort>((port, usecase) => {
+  ) as (keyof PersistencyPort)[]).reduce<PersistencyPort>((port, usecase) => {
     const excution = syncAdapter[usecase] as Function
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

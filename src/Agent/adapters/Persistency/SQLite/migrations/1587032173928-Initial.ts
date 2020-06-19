@@ -16,16 +16,26 @@ export class Initial1587032173928 implements MigrationInterface {
             size INTEGER,
             modifiedOn DATETIME,
             favorite BOOLEAN DEFAULT false,
+
             title TEXT,
-            duration INTEGER,
-            sampleRate INTEGER,
             artist TEXT,
             albumArtist TEXT,
-            composer TEXT,
+            composers JSON NOT NULL,
             album TEXT,
+            genres: JSON NOT NULL,
             trackNumber INTEGER,
             diskNumber INTEGER,
             year INTEGER,
+
+            musicbrainzID TEXT,
+            musicbrainzAlbumID TEXT,
+            musicbrainzArtistIDs JSON NOT NULL,
+            musicbrainzAlbumArtistIDs JSON NOT NULL,
+
+            duration INTEGER,
+            bitdepth INTEGER,
+            bitrate INTEGER,
+            sampleRate INTEGER,
 
             PRIMARY KEY (mountPoint, folder, name)
         ) WITHOUT ROWID;

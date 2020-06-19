@@ -1,7 +1,11 @@
-import { TupleFromUnion } from '@adapters/Database/SQLite/TupleFromUnion'
+import { Database } from 'better-sqlite3'
+import { left, right } from 'fp-ts/lib/Either'
+import { sortBy } from 'lodash'
+import path from 'path'
+import { Overwrite } from 'simplytyped'
+
 import {
   ArgumentsType,
-  DatabasePort,
   FolderID,
   MediaFile,
   MediaFileBinaryInfos,
@@ -12,36 +16,34 @@ import {
   MountPointID,
   MountPointStats,
   MountPointWithStats,
+  PersistencyPort,
   PromiseType,
-} from '@ports/Database'
-import { Database } from 'better-sqlite3'
-import { left, right } from 'fp-ts/lib/Either'
-import { sortBy } from 'lodash'
-import path from 'path'
-import { Overwrite } from 'simplytyped'
+} from '../../../ports/Persistency'
 
-const MEDIAFILE_ID_PROPS: TupleFromUnion<keyof MediaFileID> = [
-  'mountPoint',
-  'folder',
-  'name',
-]
+const MEDIAFILE_ID_PROPS = ['mountPoint', 'folder', 'name'] as const
 
-const MEDIAFILE_BINARY_INFO_PROPS: TupleFromUnion<
-  keyof MediaFileBinaryInfos
-> = ['size', 'modifiedOn']
+const MEDIAFILE_BINARY_INFO_PROPS = ['size', 'modifiedOn'] as const
 
-const MEDIAFILE_METADATA_PROPS: TupleFromUnion<keyof MediaFileMetadata> = [
+const MEDIAFILE_METADATA_PROPS = [
   'title',
-  'duration',
-  'sampleRate',
   'artist',
   'albumArtist',
-  'composer',
+  'composers',
   'album',
   'trackNumber',
   'diskNumber',
   'year',
-]
+
+  'musicbrainzID',
+  'musicbrainzAlbumID',
+  'musicbrainzArtistIDs',
+  'musicbrainzAlbumArtistIDs',
+
+  'duration',
+  'bitdepth',
+  'bitrate',
+  'sampleRate',
+] as const
 
 const MEDIAFILE_PROPS = [
   ...MEDIAFILE_ID_PROPS,
@@ -49,7 +51,7 @@ const MEDIAFILE_PROPS = [
   ...MEDIAFILE_METADATA_PROPS,
   'processingStatus',
   'favorite',
-]
+] as const
 
 export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
   const statements = {
@@ -69,35 +71,37 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
         folder = @folder AND
         name = @name
     `),
-    deleteMountPoint: db.prepare<[MountPointID]>(`
+    deleteMountPoint: db.prepare<[{ mountPoint: MountPointID }]>(`
       DELETE
       FROM mediaFiles
       WHERE
-        mountPoint = ?
+        mountPoint = @mountPoint
     `),
-    getMountPointTotalMusicDuration: db.prepare<[MountPointID]>(`
+    getMountPointTotalMusicDuration: db.prepare<
+      [{ mountPoint: MountPointID }]
+    >(`
       SELECT
         SUM(duration) as totalDuration
       FROM mediaFiles
       WHERE
         duration IS NOT NULL AND
-        mountPoint = ?
+        mountPoint = @mountPoint
     `),
-    selectAllAlbumsInMountPoint: db.prepare<[MountPointID]>(`
+    selectAllAlbumsInMountPoint: db.prepare<[{ mountPoint: MountPointID }]>(`
       SELECT
         DISTINCT album
       FROM mediaFiles
       WHERE
         album IS NOT NULL AND
-        mountPoint = ?
+        mountPoint = @mountPoint
     `),
-    selectAllArtistsInMountPoint: db.prepare<[MountPointID]>(`
+    selectAllArtistsInMountPoint: db.prepare<[{ mountPoint: MountPointID }]>(`
       SELECT
         DISTINCT artist
       FROM mediaFiles
       WHERE
         artist IS NOT NULL AND
-        mountPoint = ?
+        mountPoint = @mountPoint
     `),
     selectAllMediaFilesInFolder: db.prepare<[FolderID]>(`
       SELECT
@@ -170,15 +174,23 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
         processingStatus = 'DONE',
         
         title = @title,
-        duration = @duration,
-        sampleRate = @sampleRate,
         artist = @artist,
         albumArtist = @albumArtist,
-        composer = @composer,
+        composers = @composers,
         album = @album,
         trackNumber = @trackNumber,
         diskNumber = @diskNumber,
-        year = @year
+        year = @year,
+
+        musicbrainzID = @musicbrainzID,
+        musicbrainzAlbumID = @musicbrainzAlbumID,
+        musicbrainzArtistIDs = @musicbrainzArtistIDs,
+        musicbrainzAlbumArtistIDs = @musicbrainzAlbumArtistIDs,
+
+        duration = @duration,
+        bitdepth = @bitdepth,
+        bitrate = @bitrate,
+        sampleRate = @sampleRate
       WHERE
         mountPoint = @mountPoint AND
         folder = @folder AND
@@ -257,21 +269,21 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
           total: number
         }>
 
-        const allArtists = (statements.selectAllArtistsInMountPoint.all(
-          mountPointID,
-        ) as Array<{
+        const allArtists = (statements.selectAllArtistsInMountPoint.all({
+          mountPoint: mountPointID,
+        }) as Array<{
           artist: string
         }>).map(({ artist }) => artist)
 
-        const allAlbums = (statements.selectAllAlbumsInMountPoint.all(
-          mountPointID,
-        ) as Array<{
+        const allAlbums = (statements.selectAllAlbumsInMountPoint.all({
+          mountPoint: mountPointID,
+        }) as Array<{
           album: string
         }>).map(({ album }) => album)
 
-        const totalDuration = (statements.getMountPointTotalMusicDuration.get(
-          mountPointID,
-        ) as { totalDuration: number }).totalDuration
+        const totalDuration = (statements.getMountPointTotalMusicDuration.get({
+          mountPoint: mountPointID,
+        }) as { totalDuration: number }).totalDuration
 
         return {
           mediaFiles: {
@@ -306,7 +318,7 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
       })
     }),
     deleteMountPoint: db.transaction((mountPointID: MountPointID) => {
-      statements.deleteMountPoint.run(mountPointID)
+      statements.deleteMountPoint.run({ mountPoint: mountPointID })
     }),
     setMediaFileFavoriteState: db.transaction(
       (mediaFileID: MediaFileID, state: boolean): MediaFile => {
@@ -362,6 +374,11 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
         statements.updateMediaFileMetadata.run({
           ...mediaFileID,
           ...metadata,
+          composers: JSON.stringify(metadata.composers),
+          musicbrainzArtistIDs: JSON.stringify(metadata.musicbrainzArtistIDs),
+          musicbrainzAlbumArtistIDs: JSON.stringify(
+            metadata.musicbrainzAlbumArtistIDs,
+          ),
         })
 
         const updatedMediaFile = statements.selectMediaFile.get(
@@ -500,39 +517,47 @@ export const SyncAdapter: (db: Database) => SyncAdapter = (db) => {
   }
 }
 
-const fromMediaFileRecordToMediaFile = (
-  record: MediaFileRecord,
-): MediaFile => ({
-  id: {
-    mountPoint: record.mountPoint,
-    folder: record.folder,
-    name: record.name,
-  },
-  path: path.resolve(record.folder, record.name),
-  processingStatus: record.processingStatus,
-  binary: {
-    size: record.size,
-    modifiedOn: new Date(record.modifiedOn),
-  },
-  favorite: Boolean(record.favorite),
-  metadata: {
-    album: record.artist,
-    albumArtist: record.albumArtist,
-    artist: record.artist,
-    composer: record.composer,
-    diskNumber: record.diskNumber,
-    duration: record.duration,
-    sampleRate: record.sampleRate,
-    title: record.title,
-    trackNumber: record.trackNumber,
-    year: record.year,
-  },
-})
+const fromMediaFileRecordToMediaFile = (record: MediaFileRecord): MediaFile => {
+  return {
+    id: {
+      mountPoint: record.mountPoint,
+      folder: record.folder,
+      name: record.name,
+    },
+    path: path.resolve(record.folder, record.name),
+    processingStatus: record.processingStatus,
+    binary: {
+      size: record.size,
+      modifiedOn: new Date(record.modifiedOn),
+    },
+    favorite: Boolean(record.favorite),
+    metadata: {
+      title: record.title,
+      artist: record.artist,
+      albumArtist: record.albumArtist,
+      composers: JSON.parse(record.composers),
+      album: record.album,
+      trackNumber: record.trackNumber,
+      diskNumber: record.diskNumber,
+      year: record.year,
+
+      musicbrainzID: record.musicbrainzID,
+      musicbrainzAlbumID: record.musicbrainzAlbumID,
+      musicbrainzArtistIDs: JSON.parse(record.musicbrainzAlbumArtistIDs),
+      musicbrainzAlbumArtistIDs: JSON.parse(record.musicbrainzArtistIDs),
+
+      duration: record.duration,
+      bitdepth: record.bitdepth,
+      bitrate: record.bitrate,
+      sampleRate: record.sampleRate,
+    },
+  }
+}
 
 type SyncAdapter = {
-  [k in keyof DatabasePort]: (
-    ...args: ArgumentsType<DatabasePort[k]>
-  ) => PromiseType<ReturnType<DatabasePort[k]>>
+  [k in keyof PersistencyPort]: (
+    ...args: ArgumentsType<PersistencyPort[k]>
+  ) => PromiseType<ReturnType<PersistencyPort[k]>>
 }
 
 type MediaFileRecord = MediaFileIDColumns &
@@ -549,4 +574,11 @@ type MediaFileBinaryInfosColumns = Overwrite<
     modifiedOn: string
   }
 >
-type MediaFileMetadataColumns = MediaFileMetadata
+type MediaFileMetadataColumns = Overwrite<
+  MediaFileMetadata,
+  {
+    composers: string
+    musicbrainzArtistIDs: string
+    musicbrainzAlbumArtistIDs: string
+  }
+>
