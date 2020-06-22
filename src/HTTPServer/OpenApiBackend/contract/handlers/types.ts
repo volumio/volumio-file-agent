@@ -3,8 +3,8 @@ import { Request } from 'express'
 import { Context } from 'openapi-backend'
 
 export type Handler<
-  Params extends ParamsDictionary,
-  Query extends QueryDictionary,
+  Params extends {},
+  Query extends {},
   Body extends any,
   Output extends ResponseDescription<number, any>
 > = (c: Context, request: Request<Params, any, Body, Query>) => Promise<Output>
@@ -12,11 +12,4 @@ export type Handler<
 export type ResponseDescription<Status extends number, T extends any> = {
   status: Status
   body: T
-}
-
-export interface ParamsDictionary {
-  [key: string]: string
-}
-export interface QueryDictionary {
-  [key: string]: string | QueryDictionary | Array<string | QueryDictionary>
 }
