@@ -4,7 +4,6 @@
 import { body, endpoint, request, response } from '@airtasker/spot'
 
 import { PersistencyFailureResponse } from '../error-responses'
-import { Artist } from './entities'
 
 /**
  * Get all Artists
@@ -33,5 +32,5 @@ export class GetAllArtists {
 
 export interface GetAllArtistsSuccessResponse {
   success: true
-  artists: Artist[]
+  artists: string[]
 }

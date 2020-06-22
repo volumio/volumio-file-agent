@@ -4,7 +4,7 @@
 import { body, endpoint, queryParams, request, response } from '@airtasker/spot'
 
 import { PersistencyFailureResponse } from '../error-responses'
-import { Album, Artist, Track } from './entities'
+import { Track } from './entities'
 
 /**
  * Get contents of a folder
@@ -43,11 +43,6 @@ export class GetFolderContents {
   persistencyFailure(@body body: PersistencyFailureResponse) {}
 }
 
-export interface GetFolderReturnedTrack extends Track {
-  artist: Artist
-  album: Album
-}
-
 /** A desc */
 export interface GetFolderContentsSuccessResponse {
   success: true
@@ -56,7 +51,7 @@ export interface GetFolderContentsSuccessResponse {
   subfolders: string[]
 
   /** The collection of tracks directly contained by the folder */
-  tracks: GetFolderReturnedTrack[]
+  tracks: Track[]
 }
 
 export interface GetFolderContentsNotFoundResponse {

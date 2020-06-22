@@ -1,5 +1,2 @@
 export { Album } from './Album'
-export { Artist } from './Artist'
-export { Composer } from './Composer'
-export { Genre } from './Genre'
 export { Track } from './Track'

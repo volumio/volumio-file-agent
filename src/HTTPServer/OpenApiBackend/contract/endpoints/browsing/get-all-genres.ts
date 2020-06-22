@@ -4,7 +4,6 @@
 import { body, endpoint, request, response } from '@airtasker/spot'
 
 import { PersistencyFailureResponse } from '../error-responses'
-import { Genre } from './entities'
 
 /**
  * Get all Genres
@@ -37,5 +36,5 @@ export interface GetAllGenresSuccessResponse {
   /**
    * Genres are retured in alphabetical order
    */
-  genres: Genre[]
+  genres: string[]
 }

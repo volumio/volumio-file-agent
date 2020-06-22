@@ -4,7 +4,7 @@
 import { body, endpoint, queryParams, request, response } from '@airtasker/spot'
 
 import { PersistencyFailureResponse } from '../error-responses'
-import { Album, Artist, Track } from './entities'
+import { Album, Track } from './entities'
 
 /**
  * Get one Album
@@ -19,7 +19,7 @@ export class GetAlbum {
   request(
     @queryParams
     queryParams: {
-      artistName: string
+      artist: string
       title: string
     },
   ) {}
@@ -44,9 +44,7 @@ export class GetAlbum {
 }
 
 export interface GetAlbumReturnedAlbum extends Album {
-  artist: Artist
-  albumArtist?: Artist
-  tracks: Track
+  tracks: Track[]
 }
 
 export interface GetAlbumSuccessResponse {

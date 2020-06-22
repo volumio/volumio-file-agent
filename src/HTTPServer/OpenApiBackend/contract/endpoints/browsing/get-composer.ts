@@ -4,7 +4,7 @@
 import { body, endpoint, pathParams, request, response } from '@airtasker/spot'
 
 import { PersistencyFailureResponse } from '../error-responses'
-import { Album, Composer, Track } from './entities'
+import { Album, Track } from './entities'
 
 /**
  * Get one Composer
@@ -42,7 +42,8 @@ export class GetComposer {
   persistencyFailure(@body body: PersistencyFailureResponse) {}
 }
 
-export interface GetComposerReturnedComposer extends Composer {
+export interface GetComposerReturnedComposer {
+  name: string
   albums: Album[]
   tracks: Track[]
 }

@@ -4,7 +4,6 @@
 import { body, endpoint, request, response } from '@airtasker/spot'
 
 import { PersistencyFailureResponse } from '../error-responses'
-import { Composer } from './entities'
 
 /**
  * Get all Composers
@@ -33,5 +32,5 @@ export class GetAllComposers {
 
 export interface GetAllComposersSuccessResponse {
   success: true
-  composers: Composer[]
+  composers: string[]
 }

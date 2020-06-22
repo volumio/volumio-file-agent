@@ -4,7 +4,7 @@
 import { body, endpoint, request, response } from '@airtasker/spot'
 
 import { PersistencyFailureResponse } from '../error-responses'
-import { Album, Artist } from './entities'
+import { Album } from './entities'
 
 /**
  * Get all Albums
@@ -31,12 +31,7 @@ export class GetAllAlbums {
   persistencyFailure(@body body: PersistencyFailureResponse) {}
 }
 
-export interface GetAllAlbumsReturnedAlbum extends Album {
-  artist: Artist
-  albumArtist?: Artist
-}
-
 export interface GetAllAlbumsSuccessResponse {
   success: true
-  albums: GetAllAlbumsReturnedAlbum[]
+  albums: Album[]
 }

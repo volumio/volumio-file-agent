@@ -1,25 +1,43 @@
+import { Integer } from '@airtasker/spot'
+
 export interface Album {
   /** Unique values pertaining to the Album's tracks */
-  bitdepth: number[]
+  artists: string[]
+
+  albumArtist: string
 
   /** Unique values pertaining to the Album's tracks */
-  bitrate: number[]
+  bitdepths: Integer[]
+
+  /** Unique values pertaining to the Album's tracks */
+  bitrates: Integer[]
+
+  /** Unique values pertaining to the Album's tracks */
+  composers: string[]
 
   /** Unique values pertaining to the Album's tracks */
   fileTypes: string[]
-  genre: string
+
+  /** Unique values pertaining to the Album's tracks */
+  genres: string[]
 
   /** Unique values pertaining to the Album's tracks */
   musicbrainzIDs: string[]
 
   /** Unique values pertaining to the Album's tracks */
-  samplerate: number[]
+  sampleRates: Integer[]
+
   title: string
 
   /**
    * If present represents the full path to the first
    * contained track with an embedded albumart
    */
-  trackPathWithEmbeddedAlbumart?: string
-  year: number
+  trackPathWithEmbeddedAlbumart: string | null
+
+  /**
+   * If present represents the year of to the first
+   * contained track having a year defined
+   */
+  year: Integer | null
 }

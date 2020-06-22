@@ -1,17 +1,36 @@
-export interface Track {
-  bitdepth?: number
-  bitrate?: number
-  fileType: string
-  hasEmbeddedAlbumart: boolean
-  musicbrainz: {
-    ID?: string
-    albumID?: string
-    artistID?: string
-    albumartistID?: string
-  }
+import { Integer } from '@airtasker/spot'
 
-  /** It's the absolute path to the track file */
-  path: string
-  samplerate?: number
-  title: string
+export interface Track {
+  favorite: boolean
+  file: {
+    hasEmbeddedAlbumart: boolean
+    path: string
+    size: number
+    type: string
+  }
+  metadata: {
+    title: string | null
+    artists: string[]
+    albumArtist: string | null
+    composers: string[]
+    album: string | null
+    genres: string[]
+    trackNumber: Integer | null
+    diskNumber: Integer | null
+    year: Integer | null
+
+    musicbrainz: {
+      trackID: string | null
+      recordingID: string | null
+      albumID: string | null
+      artistIDs: string[]
+      albumArtistIDs: string[]
+    }
+
+    duration: Integer | null
+    bitdepth: Integer | null
+    bitrate: Integer | null
+    sampleRate: Integer | null
+  }
+  offset: Integer
 }

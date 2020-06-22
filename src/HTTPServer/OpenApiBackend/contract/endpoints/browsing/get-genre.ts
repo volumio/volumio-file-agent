@@ -4,7 +4,7 @@
 import { body, endpoint, pathParams, request, response } from '@airtasker/spot'
 
 import { PersistencyFailureResponse } from '../error-responses'
-import { Album, Artist, Genre } from './entities'
+import { Album } from './entities'
 
 /**
  * Get one Genre
@@ -42,8 +42,9 @@ export class GetGenre {
   persistencyFailure(@body body: PersistencyFailureResponse) {}
 }
 
-export interface GetGenreReturnedGenre extends Genre {
-  artists: Artist[]
+export interface GetGenreReturnedGenre {
+  name: string
+  artists: string[]
   albums: Album[]
 }
 
