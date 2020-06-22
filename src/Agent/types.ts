@@ -21,18 +21,19 @@ export interface AgentInterface {
     allArtistsNames: () => Promise<Either<'PERSISTENCY_FAILURE', string[]>>
     allComposersNames: () => Promise<Either<'PERSISTENCY_FAILURE', string[]>>
     allGenresNames: () => Promise<Either<'PERSISTENCY_FAILURE', string[]>>
-    allTracksByAlbum: (
-      albumName: string,
-    ) => Promise<Either<'PERSISTENCY_FAILURE', Track[]>>
-    allTracksByArtist: (
-      artistName: string,
-    ) => Promise<Either<'PERSISTENCY_FAILURE', Track[]>>
-    allTracksByComposer: (
-      composerName: string,
-    ) => Promise<Either<'PERSISTENCY_FAILURE', Track[]>>
-    allTracksByGenre: (
-      genreName: string,
-    ) => Promise<Either<'PERSISTENCY_FAILURE', Track[]>>
+    allTracksByAlbum: (album: {
+      albumArtist: string
+      title: string
+    }) => Promise<Either<'PERSISTENCY_FAILURE', Track[]>>
+    allTracksByArtist: (artist: {
+      name: string
+    }) => Promise<Either<'PERSISTENCY_FAILURE', Track[]>>
+    allTracksByComposer: (composer: {
+      name: string
+    }) => Promise<Either<'PERSISTENCY_FAILURE', Track[]>>
+    allTracksByGenre: (genre: {
+      name: string
+    }) => Promise<Either<'PERSISTENCY_FAILURE', Track[]>>
     allTracksByYear: (
       year: number,
     ) => Promise<Either<'PERSISTENCY_FAILURE', Track[]>>
@@ -81,22 +82,24 @@ export type MountPointValidationError =
   | MountPointEcosystemValidationError
 
 export type Track = {
+  favorite: boolean
   file: TrackFile
   metadata: TrackMetadata
-  favorite: boolean
   offset: number
 }
 
 export type TrackFile = {
   folder: string
+  hasEmbeddedAlbumart: boolean
   modifiedOn: Date
   name: string
   size: number
+  type: string
 }
 
 export type TrackMetadata = {
   title: Maybe<string>
-  artist: Maybe<string>
+  artists: string[]
   albumArtist: Maybe<string>
   composers: string[]
   album: Maybe<string>
@@ -105,10 +108,13 @@ export type TrackMetadata = {
   diskNumber: Maybe<number>
   year: Maybe<number>
 
-  musicbrainzID: Maybe<string>
-  musicbrainzAlbumID: Maybe<string>
-  musicbrainzArtistIDs: string[]
-  musicbrainzAlbumArtistIDs: string[]
+  musicbrainz: {
+    trackID: Maybe<string>
+    recordingID: Maybe<string>
+    albumID: Maybe<string>
+    artistIDs: string[]
+    albumArtistIDs: string[]
+  }
 
   duration: Maybe<number>
   bitdepth: Maybe<number>

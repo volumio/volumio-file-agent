@@ -12,7 +12,7 @@ import { mountPointEcosystemValidation } from './utils/mountPointEcosystemValida
 import { mountPointFSValidation } from './utils/mountPointFSValidation'
 import { mountPointPathValidation } from './utils/mountPointPathValidation'
 
-export { AgentInterface } from './types'
+export { AgentInterface, Track } from './types'
 
 export const Agent = ({
   fs,
