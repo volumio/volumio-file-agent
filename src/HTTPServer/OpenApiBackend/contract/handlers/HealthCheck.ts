@@ -1,4 +1,4 @@
-import { Agent } from '@Agent'
+import { AgentInterface } from '@Agent'
 
 import { Handler, ResponseDescription } from './types'
 
@@ -17,5 +17,5 @@ export const HealthCheck = ({}: Dependencies): Handler<
 type SuccessOutput = ResponseDescription<204, void>
 
 type Dependencies = {
-  agent: Agent
+  agent: AgentInterface
 }
