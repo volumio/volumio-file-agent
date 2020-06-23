@@ -15,17 +15,22 @@ import {
   UsecaseExecutionReport,
 } from '../../../ports/Persistency'
 import { debug } from './debug'
-import { Initial1587032173928 } from './migrations'
+import { Initial1592931680468 } from './migrations'
 import { SyncAdapter } from './SyncAdapter'
 import { TupleFromUnion } from './TupleFromUnion'
 
 const QUERIES_USECASES: TupleFromUnion<
   QueryUsecaseExecutionReport['usecase']
-> = ['getAllMountPoints', 'getMediaFilesInFolder', 'getMountPointStats']
+> = [
+  'getAllMediaFilesInFolder',
+  'getAllMountPoints',
+  'getAllMountPointsWithStats',
+  'getMountPointStats',
+]
 const MUTATIONS_USECASES: TupleFromUnion<
   MutationUsecaseExecutionReport['usecase']
 > = [
-  'addPendingMediaFilesToFolder',
+  'addPendingMediaFiles',
   'deleteMediaFiles',
   'deleteMountPoint',
   'setMediaFileFavoriteState',
@@ -45,7 +50,7 @@ export const SQLitePersistencyAdapter = async ({
     const connection = await createConnection({
       type: 'sqlite',
       database: databasePath,
-      migrations: [Initial1587032173928],
+      migrations: [Initial1592931680468],
       migrationsTransactionMode: 'all',
     })
 

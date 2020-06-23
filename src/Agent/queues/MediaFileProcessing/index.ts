@@ -19,7 +19,7 @@ export const MediaFileProcessingQueue = ({
 
   return {
     add: async (mediaFile) => {
-      const mediaFilePath = path.resolve(mediaFile.id.folder, mediaFile.id.name)
+      const mediaFilePath = path.resolve(mediaFile.folder, mediaFile.name)
 
       const shouldEnqueue =
         registeredHandlersByMediaFilePath.has(mediaFilePath) === false

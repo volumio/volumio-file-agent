@@ -10,49 +10,56 @@ export type PersistencyPort = {
    * If some of the files already exist, they will be marked as PENDING
    * and their "size" and "modifiedOn" infos will be updated.
    */
-  addPendingMediaFilesToFolder: (
-    folder: FolderID,
-    files: MediaFileToAddToFolder[],
-  ) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
+  addPendingMediaFiles: (input: {
+    mountPoint: string
+    folder: string
+    files: Array<{
+      name: string
+      size: number
+      modifiedOn: Date
+    }>
+  }) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
 
   /**
    * Ensures a set of MediaFile(s) is no longer present
    */
   deleteMediaFiles: (
-    mediaFileIDs: MediaFileID[],
+    mediaFiles: Array<{
+      mountPoint: string
+      folder: string
+      name: string
+    }>,
   ) => Promise<Either<'PERSISTENCY_FAILURE', void>>
 
   /**
    * Ensures a MountPoint and all of its mediafiles are no longer present
    */
   deleteMountPoint: (
-    mountPointID: MountPointID,
+    mountPoint: string,
   ) => Promise<Either<'PERSISTENCY_FAILURE', void>>
 
   /**
-   * Retrieves the list of knowed MountPoint(s)
+   * Retrieves the list of MediaFile(s) contained
+   * in a given folder
    */
-  getAllMountPoints: () => Promise<
-    Either<'PERSISTENCY_FAILURE', MountPointID[]>
-  >
+  getAllMediaFilesInFolder: (
+    folder: string,
+  ) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
+
+  /**
+   * Retrieves the list of known MountPoint(s)
+   */
+  getAllMountPoints: () => Promise<Either<'PERSISTENCY_FAILURE', string[]>>
 
   getAllMountPointsWithStats: () => Promise<
     Either<'PERSISTENCY_FAILURE', MountPointWithStats[]>
   >
 
   /**
-   * Retrieves the list of MediaFile(s) contained
-   * in a given Folder
-   */
-  getMediaFilesInFolder: (
-    folderID: FolderID,
-  ) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
-
-  /**
    * Retrieves statistics about a MountPoint
    */
   getMountPointStats: (
-    mountPointID: MountPointID,
+    mountPoint: string,
   ) => Promise<
     Either<'PERSISTENCY_FAILURE' | 'MOUNT_POINT_NOT_FOUND', MountPointStats>
   >
@@ -61,7 +68,11 @@ export type PersistencyPort = {
    * Sets the favorite state of a MediaFile
    */
   setMediaFileFavoriteState: (
-    mediaFileID: MediaFileID,
+    mediaFile: {
+      mountPoint: string
+      folder: string
+      name: string
+    },
     state: boolean,
   ) => Promise<
     Either<'PERSISTENCY_FAILURE' | 'MEDIA_FILE_NOT_FOUND', MediaFile>
@@ -70,9 +81,11 @@ export type PersistencyPort = {
   /**
    * Sets the processing status of a MediaFile to ERROR
    */
-  setMediaFileProcessingStatusToError: (
-    mediaFileID: MediaFileID,
-  ) => Promise<
+  setMediaFileProcessingStatusToError: (mediaFile: {
+    mountPoint: string
+    folder: string
+    name: string
+  }) => Promise<
     Either<'PERSISTENCY_FAILURE' | 'MEDIA_FILE_NOT_FOUND', MediaFile>
   >
 
@@ -80,7 +93,11 @@ export type PersistencyPort = {
    * Updates the metadata of a MediaFIle
    */
   updateMediaFileMetadata: (
-    mediaFileID: MediaFileID,
+    mediaFile: {
+      mountPoint: string
+      folder: string
+      name: string
+    },
     metadata: MediaFileMetadata,
   ) => Promise<
     Either<'PERSISTENCY_FAILURE' | 'MEDIA_FILE_NOT_FOUND', MediaFile>
@@ -89,12 +106,10 @@ export type PersistencyPort = {
 
 export type MountPointWithStats = CombineObjects<
   {
-    path: MountPointID
+    path: string
   },
   MountPointStats
 >
-
-export type MountPointID = string
 
 export type MountPointStats = {
   mediaFiles: {
@@ -110,36 +125,20 @@ export type MountPointStats = {
   }
 }
 
-export type FolderID = {
-  mountPoint: MountPointID
-  folder: string
-}
-
-export type MediaFileToAddToFolder = {
-  name: string
-  binary: MediaFileBinaryInfos
-}
-
-export type MediaFile = {
-  id: MediaFileID
-  path: string
-  processingStatus: MediaFileBinaryProcessingStatus
-  binary: MediaFileBinaryInfos
-  favorite: boolean
-  metadata: MediaFileMetadata
-}
-
-export type MediaFileID = CombineObjects<
-  FolderID,
+export type MediaFile = CombineObjects<
   {
+    mountPoint: string
+    folder: string
     name: string
-  }
->
 
-export type MediaFileBinaryInfos = {
-  size: number
-  modifiedOn: Date
-}
+    size: number
+    modifiedOn: Date
+
+    processingStatus: MediaFileBinaryProcessingStatus
+    favorite: boolean
+  },
+  MediaFileMetadata
+>
 
 export enum MediaFileBinaryProcessingStatus {
   DONE = 'DONE',
@@ -149,15 +148,17 @@ export enum MediaFileBinaryProcessingStatus {
 
 export type MediaFileMetadata = {
   title: Maybe<string>
-  artist: Maybe<string>
+  artists: string[]
   albumArtist: Maybe<string>
   composers: string[]
   album: Maybe<string>
+  genres: string[]
   trackNumber: Maybe<number>
   diskNumber: Maybe<number>
   year: Maybe<number>
 
-  musicbrainzID: Maybe<string>
+  musicbrainzTrackID: Maybe<string>
+  musicbrainzRecordingID: Maybe<string>
   musicbrainzAlbumID: Maybe<string>
   musicbrainzArtistIDs: string[]
   musicbrainzAlbumArtistIDs: string[]
@@ -166,6 +167,9 @@ export type MediaFileMetadata = {
   bitdepth: Maybe<number>
   bitrate: Maybe<number>
   sampleRate: Maybe<number>
+  trackOffset: number
+
+  hasEmbeddedAlbumart: boolean
 }
 
 type Maybe<T> = T | null
@@ -196,14 +200,17 @@ export type ObservablePersistencyPort = CombineObjects<
 export type QueryUsecaseExecutionReport = UnionizeProperties<
   Pick<
     APIExecutionReportsByUsecase,
-    'getAllMountPoints' | 'getMediaFilesInFolder' | 'getMountPointStats'
+    | 'getAllMediaFilesInFolder'
+    | 'getAllMountPoints'
+    | 'getAllMountPointsWithStats'
+    | 'getMountPointStats'
   >
 >
 
 export type MutationUsecaseExecutionReport = UnionizeProperties<
   Pick<
     APIExecutionReportsByUsecase,
-    | 'addPendingMediaFilesToFolder'
+    | 'addPendingMediaFiles'
     | 'deleteMediaFiles'
     | 'deleteMountPoint'
     | 'setMediaFileFavoriteState'

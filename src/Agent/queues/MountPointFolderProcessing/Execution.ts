@@ -21,10 +21,9 @@ export const Execution = ({
   /**
    * Fetch MediaFiles actually stored on DB
    */
-  const getFolderFilesResult = await persistency.getMediaFilesInFolder({
-    mountPoint: folderToProcess.mountPoint,
-    folder: folderToProcess.folder,
-  })
+  const getFolderFilesResult = await persistency.getAllMediaFilesInFolder(
+    folderToProcess.folder,
+  )
   if (isLeft(getFolderFilesResult)) {
     return done(null, {
       duration: getDurationFrom(start),
@@ -35,7 +34,7 @@ export const Execution = ({
   const mediaFilesInDBByName = mediaFilesInDB.reduce<
     Record<string, MediaFile | undefined>
   >((dict, mediaFile) => {
-    dict[mediaFile.id.name] = mediaFile
+    dict[mediaFile.name] = mediaFile
     return dict
   }, Object.create(null))
 
@@ -77,9 +76,8 @@ export const Execution = ({
 
     const fileStat = statsByFileName[fileName] as FileStat
     if (
-      fileStat.size === mediaFileInDB.binary.size &&
-      fileStat.modifiedOn.getTime() ===
-        mediaFileInDB.binary.modifiedOn.getTime()
+      fileStat.size === mediaFileInDB.size &&
+      fileStat.modifiedOn.getTime() === mediaFileInDB.modifiedOn.getTime()
     ) {
       return false
     }
@@ -91,7 +89,7 @@ export const Execution = ({
    * Filter out the MediaFiles in DB which should be deleted
    */
   const mediaFilesInDBToDelete = mediaFilesInDB.filter(
-    ({ id: { name } }) => fileNames.includes(name) === false,
+    ({ name }) => fileNames.includes(name) === false,
   )
 
   const result = {
@@ -104,7 +102,11 @@ export const Execution = ({
    */
   if (mediaFilesInDBToDelete.length) {
     const deletionResult = await persistency.deleteMediaFiles(
-      mediaFilesInDBToDelete.map(({ id }) => id),
+      mediaFilesInDBToDelete.map(({ mountPoint, folder, name }) => ({
+        mountPoint,
+        folder,
+        name,
+      })),
     )
     if (isLeft(deletionResult)) {
       return done(null, {
@@ -119,22 +121,18 @@ export const Execution = ({
    * Update DB with new (or updated) PENDING files
    */
   if (fileNamesToAddToDB.length) {
-    const additionResult = await persistency.addPendingMediaFilesToFolder(
-      {
-        mountPoint: folderToProcess.mountPoint,
-        folder: folderToProcess.folder,
-      },
-      fileNamesToAddToDB.map((name) => {
+    const additionResult = await persistency.addPendingMediaFiles({
+      mountPoint: folderToProcess.mountPoint,
+      folder: folderToProcess.folder,
+      files: fileNamesToAddToDB.map((name) => {
         const stat = statsByFileName[name] as FileStat
         return {
           name,
-          binary: {
-            modifiedOn: stat.modifiedOn,
-            size: stat.size,
-          },
+          modifiedOn: stat.modifiedOn,
+          size: stat.size,
         }
       }),
-    )
+    })
     if (isLeft(additionResult)) {
       return done(null, {
         duration: getDurationFrom(start),

@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, TableIndex } from 'typeorm'
 
-export class Initial1587032173928 implements MigrationInterface {
+export class Initial1592931680468 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     /**
      * Here we use a plain SQL query because we
@@ -12,22 +12,25 @@ export class Initial1587032173928 implements MigrationInterface {
             mountPoint TEXT NOT NULL,
             folder TEXT NOT NULL,
             name TEXT NOT NULL,
+            
+            size INTEGER NOT NULL,
+            modifiedOn DATETIME NOT NULL,
+
             processingStatus TEXT NOT NULL,
-            size INTEGER,
-            modifiedOn DATETIME,
             favorite BOOLEAN DEFAULT false,
 
             title TEXT,
-            artist TEXT,
+            artists JSON NOT NULL,
             albumArtist TEXT,
             composers JSON NOT NULL,
             album TEXT,
-            genres: JSON NOT NULL,
+            genres JSON NOT NULL,
             trackNumber INTEGER,
             diskNumber INTEGER,
             year INTEGER,
 
-            musicbrainzID TEXT,
+            musicbrainzTrackID TEXT,
+            musicbrainzRecordingID TEXT,
             musicbrainzAlbumID TEXT,
             musicbrainzArtistIDs JSON NOT NULL,
             musicbrainzAlbumArtistIDs JSON NOT NULL,
@@ -36,6 +39,9 @@ export class Initial1587032173928 implements MigrationInterface {
             bitdepth INTEGER,
             bitrate INTEGER,
             sampleRate INTEGER,
+            trackOffset INTEGER NOT NULL,
+
+            hasEmbeddedAlbumart BOOLEAN DEFAULT false,
 
             PRIMARY KEY (mountPoint, folder, name)
         ) WITHOUT ROWID;
