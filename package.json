@@ -28,7 +28,7 @@
     "module-alias": "^2.2.2",
     "music-metadata": "^6.3.7",
     "on-finished": "^2.3.0",
-    "openapi-backend": "^3.4.1",
+    "openapi-backend": "^3.5.1",
     "performance-now": "^2.1.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.5.5",
