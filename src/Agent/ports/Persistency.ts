@@ -38,12 +38,30 @@ export type PersistencyPort = {
     mountPoint: string,
   ) => Promise<Either<'PERSISTENCY_FAILURE', void>>
 
+  /**
+   * Retrieves all the unique names of artists which appear as MediaFile.albumArtist
+   */
   getAllAlbumArtists: () => Promise<Either<'PERSISTENCY_FAILURE', string[]>>
 
+  /**
+   * Retrieves all the unique names of artists which appear inside all the MediaFile.artists'collections
+   */
   getAllArtists: () => Promise<Either<'PERSISTENCY_FAILURE', string[]>>
 
+  /**
+   * Retrieves all the unique names of artists which appear inside all the MediaFile.composers'collections
+   */
   getAllComposers: () => Promise<Either<'PERSISTENCY_FAILURE', string[]>>
 
+  /**
+   * Retrieves all the unique genres which appear inside all the MediaFile.genres'collections
+   */
+  getAllGenres: () => Promise<Either<'PERSISTENCY_FAILURE', string[]>>
+
+  /**
+   * Retrieves all the MediaFiles having:
+   * `.album === title && (.albumArtist === artist || .artists.includes(artist))`
+   */
   getAllMediaFilesByAlbum: (input: {
     artist: string
     title: string

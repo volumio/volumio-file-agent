@@ -114,7 +114,13 @@ export const Agent = ({
         return right(getAllComposersResult.right.sort())
       },
       allGenresNames: async () => {
-        return right([])
+        const getAllGenresResult = await persistency.getAllGenres()
+
+        if (isLeft(getAllGenresResult)) {
+          return left('PERSISTENCY_FAILURE')
+        }
+
+        return right(getAllGenresResult.right.sort())
       },
       allTracksByAlbum: async (input) => {
         const getAllMediaFilesByAlbumResult = await persistency.getAllMediaFilesByAlbum(

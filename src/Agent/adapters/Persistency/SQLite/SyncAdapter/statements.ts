@@ -73,6 +73,12 @@ export const makeStatements = (db: Database): Statements => ({
     FROM 
       mediaFiles
   `),
+  getAllGenres: db.prepare(`
+    SELECT
+      DISTINCT genres
+    FROM 
+      mediaFiles
+  `),
   getAllMediaFilesByAlbum: db.prepare(`
     SELECT
       ${MEDIAFILE_PROPS.join(',')}
@@ -209,6 +215,7 @@ export type Statements = {
     mountPoint: string
   }>
   getAllComposers: Statement<[]>
+  getAllGenres: Statement<[]>
   getAllMediaFilesByAlbum: Statement<{
     album: string
   }>
