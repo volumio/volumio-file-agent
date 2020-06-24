@@ -437,6 +437,19 @@ export const SyncAdapter = (db: Database): SyncAdapter => {
         return left('PERSISTENCY_FAILURE')
       }
     },
+    getAllYears: () => {
+      try {
+        const records = statements.getAllYears.all() as Array<{
+          year: number
+        }>
+
+        const years = uniq(records.map<number>(({ year }) => year))
+
+        return right(years.sort())
+      } catch (error) {
+        return left('PERSISTENCY_FAILURE')
+      }
+    },
     getMountPointStats: (mountPoint) => {
       try {
         return right(getMountPointStats(mountPoint))

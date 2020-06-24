@@ -98,6 +98,14 @@ export const makeStatements = (db: Database): Statements => ({
       DISTINCT mountPoint
     FROM mediaFiles
   `),
+  getAllYears: db.prepare(`
+    SELECT
+      DISTINCT year
+    FROM
+      mediaFiles
+    WHERE
+      year IS NOT NULL
+  `),
   getMediaFile: db.prepare(`
     SELECT
       ${MEDIAFILE_PROPS.join(',')}
@@ -223,6 +231,7 @@ export type Statements = {
     folder: string
   }>
   getAllMountPoints: Statement<[]>
+  getAllYears: Statement<[]>
   getMediaFile: Statement<{
     mountPoint: string
     folder: string

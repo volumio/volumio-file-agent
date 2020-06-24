@@ -153,7 +153,13 @@ export const Agent = ({
         return right([])
       },
       allYears: async () => {
-        return right([])
+        const allYearsResult = await persistency.getAllYears()
+
+        if (isLeft(allYearsResult)) {
+          return left('PERSISTENCY_FAILURE')
+        }
+
+        return right(allYearsResult.right.sort())
       },
       folderSubfolders: async () => {
         return right([])

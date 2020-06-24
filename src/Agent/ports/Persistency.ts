@@ -84,6 +84,8 @@ export type PersistencyPort = {
     Either<'PERSISTENCY_FAILURE', MountPointWithStats[]>
   >
 
+  getAllYears: () => Promise<Either<'PERSISTENCY_FAILURE', number[]>>
+
   /**
    * Retrieves statistics about a MountPoint
    */
