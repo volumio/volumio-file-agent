@@ -8,150 +8,157 @@ import { MEDIAFILE_PROPS } from './const'
 
 export const makeStatements = (db: Database): Statements => ({
   addMediaFile: db.prepare(`
-      INSERT INTO mediaFiles
-        (mountPoint, folder, name, processingStatus, size, modifiedOn, artists, composers, genres, musicbrainzArtistIDs, musicbrainzAlbumArtistIDs, trackOffset)
-      VALUES
-        (@mountPoint, @folder, @name, 'PENDING', @size, @modifiedOn, '[]', '[]', '[]', '[]', '[]', 0)
-    `),
+    INSERT INTO mediaFiles
+      (mountPoint, folder, name, processingStatus, size, modifiedOn, artists, composers, genres, musicbrainzArtistIDs, musicbrainzAlbumArtistIDs, trackOffset)
+    VALUES
+      (@mountPoint, @folder, @name, 'PENDING', @size, @modifiedOn, '[]', '[]', '[]', '[]', '[]', 0)
+  `),
   deleteMediaFile: db.prepare(`
-      DELETE
-      FROM mediaFiles
-      WHERE
-        mountPoint = @mountPoint AND
-        folder = @folder AND
-        name = @name
-    `),
+    DELETE
+    FROM mediaFiles
+    WHERE
+      mountPoint = @mountPoint AND
+      folder = @folder AND
+      name = @name
+  `),
   deleteAllMediaFilesByMountPoint: db.prepare(`
-      DELETE
-      FROM mediaFiles
-      WHERE
-        mountPoint = @mountPoint
-    `),
+    DELETE
+    FROM mediaFiles
+    WHERE
+      mountPoint = @mountPoint
+  `),
   getAllAlbumArtistsByMountPoint: db.prepare(`
-      SELECT
-        DISTINCT albumArtist
-      FROM 
-        mediaFiles
-      WHERE
-        mountPoint = @mountPoint AND
-        albumArtist IS NOT NULL
-    `),
+    SELECT
+      DISTINCT albumArtist
+    FROM 
+      mediaFiles
+    WHERE
+      mountPoint = @mountPoint AND
+      albumArtist IS NOT NULL
+  `),
   getAllAlbumsInMountPoint: db.prepare(`
-      SELECT
-        DISTINCT album
-      FROM
-        mediaFiles
-      WHERE
-        mountPoint = @mountPoint AND
-        album IS NOT NULL
-    `),
+    SELECT
+      DISTINCT album
+    FROM
+      mediaFiles
+    WHERE
+      mountPoint = @mountPoint AND
+      album IS NOT NULL
+  `),
   getAllArtistsByMountPoint: db.prepare(`
-      SELECT
-        DISTINCT artists
-      FROM 
-        mediaFiles
-      WHERE
-        mountPoint = @mountPoint
-    `),
+    SELECT
+      DISTINCT artists
+    FROM 
+      mediaFiles
+    WHERE
+      mountPoint = @mountPoint
+  `),
+  getAllMediaFilesByAlbum: db.prepare(`
+    SELECT
+      ${MEDIAFILE_PROPS.join(',')}
+    FROM mediaFiles
+    WHERE
+      album = @album
+  `),
   getAllMediaFilesInFolder: db.prepare(`
-      SELECT
-        ${MEDIAFILE_PROPS.join(',')}
-      FROM mediaFiles
-      WHERE
-        folder = @folder
-    `),
+    SELECT
+      ${MEDIAFILE_PROPS.join(',')}
+    FROM mediaFiles
+    WHERE
+      folder = @folder
+  `),
   getAllMountPoints: db.prepare(`
-      SELECT
-        DISTINCT mountPoint
-      FROM mediaFiles
-    `),
+    SELECT
+      DISTINCT mountPoint
+    FROM mediaFiles
+  `),
   getMediaFile: db.prepare(`
-      SELECT
-        ${MEDIAFILE_PROPS.join(',')}
-      FROM mediaFiles
-      WHERE
-        mountPoint = @mountPoint AND
-        folder = @folder AND
-        name = @name
-    `),
+    SELECT
+      ${MEDIAFILE_PROPS.join(',')}
+    FROM mediaFiles
+    WHERE
+      mountPoint = @mountPoint AND
+      folder = @folder AND
+      name = @name
+  `),
   getMountPointProcessingStats: db.prepare(`
-      SELECT
-        processingStatus,
-        COUNT(*) as total
-      FROM mediaFiles
-      WHERE
-        mountPoint = @mountPoint
-    `),
+    SELECT
+      processingStatus,
+      COUNT(*) as total
+    FROM mediaFiles
+    WHERE
+      mountPoint = @mountPoint
+  `),
   getTotalMusicDurationByMountPoint: db.prepare(`
-      SELECT
-        SUM(duration) as totalDuration
-      FROM mediaFiles
-      WHERE
-        mountPoint = @mountPoint AND
-        duration IS NOT NULL
-    `),
+    SELECT
+      SUM(duration) as totalDuration
+    FROM mediaFiles
+    WHERE
+      mountPoint = @mountPoint AND
+      duration IS NOT NULL
+  `),
   setMediaFileProcessingStatusToError: db.prepare(`
-      UPDATE mediaFiles
-      SET
-        processingStatus = 'ERROR'
-      WHERE
-        mountPoint = @mountPoint AND
-        folder = @folder AND
-        name = @name
-    `),
+    UPDATE mediaFiles
+    SET
+      processingStatus = 'ERROR'
+    WHERE
+      mountPoint = @mountPoint AND
+      folder = @folder AND
+      name = @name
+  `),
   setMediaFileProcessingStatusToPending: db.prepare(`
-      UPDATE mediaFiles
-      SET
-        processingStatus = 'PENDING',
-        size = @size,
-        modifiedOn = @modifiedOn
-      WHERE
-        mountPoint = @mountPoint AND
-        folder = @folder AND
-        name = @name
-    `),
+    UPDATE mediaFiles
+    SET
+      processingStatus = 'PENDING',
+      size = @size,
+      modifiedOn = @modifiedOn
+    WHERE
+      mountPoint = @mountPoint AND
+      folder = @folder AND
+      name = @name
+  `),
   updateMediaFileFavoriteState: db.prepare(`
-      UPDATE mediaFiles
-      SET
-        favorite = @favorite
-      WHERE
-        mountPoint = @mountPoint AND
-        folder = @folder AND
-        name = @name
-    `),
+    UPDATE mediaFiles
+    SET
+      favorite = @favorite
+    WHERE
+      mountPoint = @mountPoint AND
+      folder = @folder AND
+      name = @name
+  `),
   updateMediaFileMetadata: db.prepare(`
-      UPDATE mediaFiles
-      SET
-        processingStatus = 'DONE',
-        
-        title = @title,
-        artists = @artists,
-        albumArtist = @albumArtist,
-        composers = @composers,
-        album = @album,
-        genres = @genres,
-        trackNumber = @trackNumber,
-        diskNumber = @diskNumber,
-        year = @year,
+    UPDATE mediaFiles
+    SET
+      processingStatus = 'DONE',
+      
+      title = @title,
+      artists = @artists,
+      albumArtist = @albumArtist,
+      composers = @composers,
+      album = @album,
+      genres = @genres,
+      trackNumber = @trackNumber,
+      diskNumber = @diskNumber,
+      year = @year,
 
-        musicbrainzTrackID = @musicbrainzTrackID,
-        musicbrainzRecordingID = @musicbrainzRecordingID,
-        musicbrainzAlbumID = @musicbrainzAlbumID,
-        musicbrainzArtistIDs = @musicbrainzArtistIDs,
-        musicbrainzAlbumArtistIDs = @musicbrainzAlbumArtistIDs,
+      musicbrainzTrackID = @musicbrainzTrackID,
+      musicbrainzRecordingID = @musicbrainzRecordingID,
+      musicbrainzAlbumID = @musicbrainzAlbumID,
+      musicbrainzArtistIDs = @musicbrainzArtistIDs,
+      musicbrainzAlbumArtistIDs = @musicbrainzAlbumArtistIDs,
 
-        duration = @duration,
-        bitdepth = @bitdepth,
-        bitrate = @bitrate,
-        sampleRate = @sampleRate,
-        trackOffset = @trackOffset,
+      duration = @duration,
+      bitdepth = @bitdepth,
+      bitrate = @bitrate,
+      sampleRate = @sampleRate,
+      trackOffset = @trackOffset,
 
-        hasEmbeddedAlbumart = @hasEmbeddedAlbumart
-      WHERE
-        mountPoint = @mountPoint AND
-        folder = @folder AND
-        name = @name
-    `),
+      hasEmbeddedAlbumart = @hasEmbeddedAlbumart
+    WHERE
+      mountPoint = @mountPoint AND
+      folder = @folder AND
+      name = @name
+  `),
 })
 
 export type Statements = {
@@ -178,6 +185,9 @@ export type Statements = {
   }>
   getAllArtistsByMountPoint: Statement<{
     mountPoint: string
+  }>
+  getAllMediaFilesByAlbum: Statement<{
+    album: string
   }>
   getAllMediaFilesInFolder: Statement<{
     folder: string

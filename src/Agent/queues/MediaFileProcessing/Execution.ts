@@ -49,7 +49,7 @@ export const Execution = ({
         folder: mediaFile.folder,
         name: mediaFile.name,
       },
-      fromProcessedMetadataToMediafileMetadata(metadata),
+      fromProcessedMetadataToMediaFileMetadata(metadata),
     )
 
     done(null, {
@@ -61,7 +61,7 @@ export const Execution = ({
 
 const getDurationFrom = (start: number) => now() - start
 
-const fromProcessedMetadataToMediafileMetadata = (
+const fromProcessedMetadataToMediaFileMetadata = (
   metadata: ProcessedMediaFile['metadata'],
 ): MediaFileMetadata => ({
   title: metadata.common.title || null,
@@ -98,7 +98,7 @@ const fromProcessedMetadataToMediafileMetadata = (
       ? Math.round(metadata.format.duration)
       : null,
   bitdepth: metadata.format.bitsPerSample || null,
-  bitrate: metadata.format.bitrate || null,
+  bitrate: metadata.format.bitrate ? Math.round(metadata.format.bitrate) : null,
   sampleRate: metadata.format.sampleRate || null,
   trackOffset: 0,
 

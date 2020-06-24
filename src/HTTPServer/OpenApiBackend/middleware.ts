@@ -26,7 +26,7 @@ export const OpenApiBackendMiddleware = ({
       case 'not-found':
         return next()
       case 'not-implemented':
-        return next() // This allows us
+        return next()
       case 'response':
         return res.status(response.status).send(response.body)
       case 'validation-failure':

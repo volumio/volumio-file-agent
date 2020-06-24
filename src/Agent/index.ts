@@ -1,4 +1,4 @@
-import { isLeft, right } from 'fp-ts/lib/Either'
+import { isLeft, left, right } from 'fp-ts/lib/Either'
 
 import { FilesystemPort } from './ports/Filesystem'
 import { MediaFileMetadataProcessingPort } from './ports/MediaFileMetadataProcessing'
@@ -8,6 +8,7 @@ import { MountPointFolderProcessingQueue } from './queues/MountPointFolderProces
 import { MountPointProcessingQueue } from './queues/MountPointProcessing'
 import { MountPointScanningQueue } from './queues/MountPointScanning'
 import { AgentInterface } from './types'
+import { fromPersistencyMediaFileToTrack } from './utils/fromPersistencyMediaFileToTrack'
 import { mountPointEcosystemValidation } from './utils/mountPointEcosystemValidation'
 import { mountPointFSValidation } from './utils/mountPointFSValidation'
 import { mountPointPathValidation } from './utils/mountPointPathValidation'
@@ -95,8 +96,17 @@ export const Agent = ({
       allGenresNames: async () => {
         return right([])
       },
-      allTracksByAlbum: async (_) => {
-        return right([])
+      allTracksByAlbum: async (input) => {
+        const getAllMediaFilesByAlbumResult = await persistency.getAllMediaFilesByAlbum(
+          input,
+        )
+        if (isLeft(getAllMediaFilesByAlbumResult)) {
+          return left('PERSISTENCY_FAILURE')
+        }
+
+        const mediaFiles = getAllMediaFilesByAlbumResult.right
+
+        return right(mediaFiles.map(fromPersistencyMediaFileToTrack))
       },
       allTracksByArtist: async (_) => {
         return right([])

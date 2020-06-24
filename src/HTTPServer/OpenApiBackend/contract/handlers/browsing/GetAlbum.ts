@@ -15,12 +15,12 @@ export const GetAlbum = ({
   agent,
 }: Dependencies): Handler<
   {},
-  { albumArtist: string; title: string },
+  { artist: string; title: string },
   {},
   SuccessOutput | NotFoundOutput | ServerErrorOutput
 > => async (_, request) => {
   const allTracksByAlbumResult = await agent.query.allTracksByAlbum({
-    albumArtist: request.query.albumArtist,
+    artist: request.query.artist,
     title: request.query.title,
   })
 

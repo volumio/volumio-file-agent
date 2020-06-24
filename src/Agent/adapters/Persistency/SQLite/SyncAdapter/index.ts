@@ -305,7 +305,6 @@ export const SyncAdapter = (db: Database): SyncAdapter => {
       try {
         return right(addPendingMediaFiles(input))
       } catch (error) {
-        console.error(error)
         return left('PERSISTENCY_FAILURE')
       }
     },
@@ -319,6 +318,24 @@ export const SyncAdapter = (db: Database): SyncAdapter => {
     deleteMountPoint: (mountPoint) => {
       try {
         return right(deleteMountPoint(mountPoint))
+      } catch (error) {
+        return left('PERSISTENCY_FAILURE')
+      }
+    },
+    getAllMediaFilesByAlbum: ({ artist, title }) => {
+      try {
+        const records = statements.getAllMediaFilesByAlbum.all({
+          album: title,
+        }) as MediaFileRecord[]
+
+        const mediaFiles = records.map(mediaFileRecordToPortMediaFile)
+
+        const mediaFilesWithMatchingArtist = mediaFiles.filter(
+          (mediaFile) =>
+            mediaFile.albumArtist === artist ||
+            mediaFile.artists.includes(artist),
+        )
+        return right(mediaFilesWithMatchingArtist)
       } catch (error) {
         return left('PERSISTENCY_FAILURE')
       }

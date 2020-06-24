@@ -19,7 +19,7 @@ export class GetAlbum {
   request(
     @queryParams
     queryParams: {
-      albumArtist: string
+      artist: string
       title: string
     },
   ) {}

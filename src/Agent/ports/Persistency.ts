@@ -38,6 +38,11 @@ export type PersistencyPort = {
     mountPoint: string,
   ) => Promise<Either<'PERSISTENCY_FAILURE', void>>
 
+  getAllMediaFilesByAlbum: (input: {
+    artist: string
+    title: string
+  }) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
+
   /**
    * Retrieves the list of MediaFile(s) contained
    * in a given folder

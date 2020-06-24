@@ -22,7 +22,7 @@ export interface AgentInterface {
     allComposersNames: () => Promise<Either<'PERSISTENCY_FAILURE', string[]>>
     allGenresNames: () => Promise<Either<'PERSISTENCY_FAILURE', string[]>>
     allTracksByAlbum: (album: {
-      albumArtist: string
+      artist: string
       title: string
     }) => Promise<Either<'PERSISTENCY_FAILURE', Track[]>>
     allTracksByArtist: (artist: {
