@@ -239,17 +239,17 @@ export type ObservablePersistencyPort = CombineObjects<
 export type QueryUsecaseExecutionReport = UnionizeProperties<
   Pick<
     APIExecutionReportsByUsecase,
-    | 'getAllMediaFilesInFolder'
-    | 'getAllMountPoints'
-    | 'getAllMountPointsWithStats'
-    | 'getMountPointStats'
     | 'getAllAlbumArtists'
     | 'getAllArtists'
     | 'getAllComposers'
     | 'getAllGenres'
     | 'getAllMediaFilesByAlbum'
     | 'getAllMediaFilesByArtist'
+    | 'getAllMediaFilesInFolder'
+    | 'getAllMountPoints'
+    | 'getAllMountPointsWithStats'
     | 'getAllYears'
+    | 'getMountPointStats'
   >
 >
 
