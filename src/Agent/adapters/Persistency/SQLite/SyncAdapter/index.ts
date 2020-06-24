@@ -322,6 +322,39 @@ export const SyncAdapter = (db: Database): SyncAdapter => {
         return left('PERSISTENCY_FAILURE')
       }
     },
+    getAllAlbumArtists: () => {
+      try {
+        const records = statements.getAllAlbumArtists.all() as Array<{
+          albumArtist: string
+        }>
+
+        const albumArtists = uniq(records.map(({ albumArtist }) => albumArtist))
+
+        return right(albumArtists.sort())
+      } catch (error) {
+        return left('PERSISTENCY_FAILURE')
+      }
+    },
+    getAllArtists: () => {
+      try {
+        const records = statements.getAllArtists.all() as Array<{
+          artists: string
+        }>
+
+        const artists = uniq(
+          records
+            .map<string[]>(({ artists }) => JSON.parse(artists))
+            .reduce<string[]>(
+              (allArtists, artists) => allArtists.concat(artists),
+              [],
+            ),
+        )
+
+        return right(artists.sort())
+      } catch (error) {
+        return left('PERSISTENCY_FAILURE')
+      }
+    },
     getAllMediaFilesByAlbum: ({ artist, title }) => {
       try {
         const records = statements.getAllMediaFilesByAlbum.all({

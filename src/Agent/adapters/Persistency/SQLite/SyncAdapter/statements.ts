@@ -27,6 +27,14 @@ export const makeStatements = (db: Database): Statements => ({
     WHERE
       mountPoint = @mountPoint
   `),
+  getAllAlbumArtists: db.prepare(`
+    SELECT
+      DISTINCT albumArtist
+    FROM 
+      mediaFiles
+    WHERE
+      albumArtist IS NOT NULL
+  `),
   getAllAlbumArtistsByMountPoint: db.prepare(`
     SELECT
       DISTINCT albumArtist
@@ -44,6 +52,12 @@ export const makeStatements = (db: Database): Statements => ({
     WHERE
       mountPoint = @mountPoint AND
       album IS NOT NULL
+  `),
+  getAllArtists: db.prepare(`
+    SELECT
+      DISTINCT artists
+    FROM 
+      mediaFiles
   `),
   getAllArtistsByMountPoint: db.prepare(`
     SELECT
@@ -177,12 +191,14 @@ export type Statements = {
   deleteAllMediaFilesByMountPoint: Statement<{
     mountPoint: string
   }>
+  getAllAlbumArtists: Statement<[]>
   getAllAlbumArtistsByMountPoint: Statement<{
     mountPoint: string
   }>
   getAllAlbumsInMountPoint: Statement<{
     mountPoint: string
   }>
+  getAllArtists: Statement<[]>
   getAllArtistsByMountPoint: Statement<{
     mountPoint: string
   }>

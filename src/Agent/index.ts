@@ -1,4 +1,5 @@
 import { isLeft, left, right } from 'fp-ts/lib/Either'
+import { uniq } from 'lodash'
 
 import { FilesystemPort } from './ports/Filesystem'
 import { MediaFileMetadataProcessingPort } from './ports/MediaFileMetadataProcessing'
@@ -88,7 +89,20 @@ export const Agent = ({
     },
     query: {
       allArtistsNames: async () => {
-        return right([])
+        const [albumArtistsResult, artistsResult] = await Promise.all([
+          persistency.getAllAlbumArtists(),
+          persistency.getAllArtists(),
+        ])
+
+        if (isLeft(albumArtistsResult) || isLeft(artistsResult)) {
+          return left('PERSISTENCY_FAILURE')
+        }
+
+        const names = uniq(
+          albumArtistsResult.right.concat(artistsResult.right),
+        ).sort()
+
+        return right(names)
       },
       allComposersNames: async () => {
         return right([])
