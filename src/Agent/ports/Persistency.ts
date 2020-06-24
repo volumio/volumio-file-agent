@@ -68,6 +68,14 @@ export type PersistencyPort = {
   }) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
 
   /**
+   * Retrieves all the MediaFiles having:
+   * `.albumArtist === artistName || .artists.includes(artistName)`
+   */
+  getAllMediaFilesByArtist: (
+    artistName: string,
+  ) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
+
+  /**
    * Retrieves the list of MediaFile(s) contained
    * in a given folder
    */
@@ -235,6 +243,13 @@ export type QueryUsecaseExecutionReport = UnionizeProperties<
     | 'getAllMountPoints'
     | 'getAllMountPointsWithStats'
     | 'getMountPointStats'
+    | 'getAllAlbumArtists'
+    | 'getAllArtists'
+    | 'getAllComposers'
+    | 'getAllGenres'
+    | 'getAllMediaFilesByAlbum'
+    | 'getAllMediaFilesByArtist'
+    | 'getAllYears'
   >
 >
 

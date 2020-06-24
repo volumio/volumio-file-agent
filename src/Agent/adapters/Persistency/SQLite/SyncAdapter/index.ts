@@ -413,6 +413,19 @@ export const SyncAdapter = (db: Database): SyncAdapter => {
         return left('PERSISTENCY_FAILURE')
       }
     },
+    getAllMediaFilesByArtist: (artistName) => {
+      try {
+        const records = statements.getAllMediaFilesByArtist.all({
+          artist: artistName,
+        }) as MediaFileRecord[]
+
+        const mediaFiles = records.map(mediaFileRecordToPortMediaFile)
+
+        return right(mediaFiles)
+      } catch (error) {
+        return left('PERSISTENCY_FAILURE')
+      }
+    },
     getAllMediaFilesInFolder: (folder) => {
       try {
         return right(getAllMediaFilesInFolder(folder))

@@ -22,9 +22,16 @@ import { TupleFromUnion } from './TupleFromUnion'
 const QUERIES_USECASES: TupleFromUnion<
   QueryUsecaseExecutionReport['usecase']
 > = [
+  'getAllAlbumArtists',
+  'getAllArtists',
+  'getAllComposers',
+  'getAllGenres',
+  'getAllMediaFilesByAlbum',
+  'getAllMediaFilesByArtist',
   'getAllMediaFilesInFolder',
   'getAllMountPoints',
   'getAllMountPointsWithStats',
+  'getAllYears',
   'getMountPointStats',
 ]
 const MUTATIONS_USECASES: TupleFromUnion<

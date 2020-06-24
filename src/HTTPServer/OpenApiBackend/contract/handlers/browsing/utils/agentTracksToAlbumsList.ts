@@ -16,6 +16,7 @@ export const agentTracksToAlbumsList = (tracks: AgentTrack[]): Album[] => {
 
   return sortBy(
     Object.values(tracksByAlbum).map(agentTracksToAlbum),
+    ({ year }) => year,
     ({ title }) => title,
   )
 }

@@ -25,6 +25,8 @@ export const MEDIAFILE_METADATA_PROPS = [
   'bitdepth',
   'bitrate',
   'sampleRate',
+  'trackOffset',
+
   'hasEmbeddedAlbumart',
 ] as const
 
