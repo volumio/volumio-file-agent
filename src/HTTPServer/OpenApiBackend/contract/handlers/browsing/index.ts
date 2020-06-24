@@ -2,6 +2,7 @@ import { AgentInterface } from '@Agent'
 
 import { wrapResponse } from '../utils'
 import { GetAlbum } from './GetAlbum'
+import { GetAllAlbums } from './GetAllAlbums'
 import { GetAllArtists } from './GetAllArtists'
 import { GetAllComposers } from './GetAllComposers'
 import { GetAllGenres } from './GetAllGenres'
@@ -11,6 +12,7 @@ import { GetComposer } from './GetComposer'
 
 export const BrowsingHandlers = ({ agent }: Dependencies) => ({
   GetAlbum: wrapResponse(GetAlbum({ agent })),
+  GetAllAlbums: wrapResponse(GetAllAlbums({ agent })),
   GetArtist: wrapResponse(GetArtist({ agent })),
   GetAllArtists: wrapResponse(GetAllArtists({ agent })),
   GetAllComposers: wrapResponse(GetAllComposers({ agent })),

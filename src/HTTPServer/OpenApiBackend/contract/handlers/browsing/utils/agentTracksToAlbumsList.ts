@@ -6,17 +6,17 @@ import { agentTracksToAlbum } from './agentTracksToAlbum'
 
 export const agentTracksToAlbumsList = (tracks: AgentTrack[]): Album[] => {
   const tracksHavingDefinedAlbum = tracks.filter(
-    ({ metadata }) => metadata.album !== null && metadata.albumArtist !== null,
+    ({ metadata }) => metadata.album !== null,
   )
 
   const tracksByAlbum = groupBy(
     tracksHavingDefinedAlbum,
-    ({ metadata }) => `${metadata.album}:${metadata.albumArtist}`,
+    ({ metadata }) => `${metadata.album}:${metadata.albumArtist || ''}`,
   )
 
   return sortBy(
     Object.values(tracksByAlbum).map(agentTracksToAlbum),
-    ({ year }) => year,
+    ({ year }) => year || 0,
     ({ title }) => title,
   )
 }
