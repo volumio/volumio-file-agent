@@ -159,6 +159,21 @@ export const Agent = ({
       allTracksInFolder: async (_) => {
         return right([])
       },
+      allTracksHavingAlbum: async () => {
+        try {
+          const getAllMediaFilesHavingAlbumResult = await persistency.getAllMediaFilesHavingAlbum()
+
+          if (isLeft(getAllMediaFilesHavingAlbumResult)) {
+            return left('PERSISTENCY_FAILURE')
+          }
+
+          const mediaFiles = getAllMediaFilesHavingAlbumResult.right
+
+          return right(mediaFiles.map(fromPersistencyMediaFileToTrack))
+        } catch (error) {
+          return left('PERSISTENCY_FAILURE')
+        }
+      },
       allMountPoints: async () => {
         return right([])
       },

@@ -83,6 +83,10 @@ export type PersistencyPort = {
     folder: string,
   ) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
 
+  getAllMediaFilesHavingAlbum: () => Promise<
+    Either<'PERSISTENCY_FAILURE', MediaFile[]>
+  >
+
   /**
    * Retrieves the list of known MountPoint(s)
    */

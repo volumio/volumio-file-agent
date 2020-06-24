@@ -40,6 +40,7 @@ export interface AgentInterface {
     allTracksInFolder: (
       folderPath: string,
     ) => Promise<Either<'PERSISTENCY_FAILURE', Track[]>>
+    allTracksHavingAlbum: () => Promise<Either<'PERSISTENCY_FAILURE', Track[]>>
     allMountPoints: () => Promise<Either<'PERSISTENCY_FAILURE', MountPoint[]>>
     allYears: () => Promise<Either<'PERSISTENCY_FAILURE', number[]>>
     folderSubfolders: (folderPath: string) => Promise<Either<Error, string[]>>

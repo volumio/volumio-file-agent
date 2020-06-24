@@ -102,6 +102,12 @@ export const makeStatements = (db: Database): Statements => ({
     WHERE
       folder = @folder
   `),
+  getAllMediaFilesHavingAlbum: db.prepare(`
+    SELECT
+      ${MEDIAFILE_PROPS.join(',')}
+    FROM mediaFiles
+      WHERE album IS NOT NULL
+  `),
   getAllMountPoints: db.prepare(`
     SELECT
       DISTINCT mountPoint
@@ -242,6 +248,7 @@ export type Statements = {
   getAllMediaFilesInFolder: Statement<{
     folder: string
   }>
+  getAllMediaFilesHavingAlbum: Statement<[]>
   getAllMountPoints: Statement<[]>
   getAllYears: Statement<[]>
   getMediaFile: Statement<{
