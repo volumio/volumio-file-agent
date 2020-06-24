@@ -1,4 +1,7 @@
 import { AgentInterface } from '@Agent'
+import { agentTracksToAlbumsList } from '@HTTPServer/OpenApiBackend/contract/handlers/browsing/utils/agentTracksToAlbumsList'
+import { agentTrackToBrowsingTrack } from '@HTTPServer/OpenApiBackend/contract/handlers/browsing/utils/agentTrackToBrowsingTrack'
+import { sortAgentTracks } from '@HTTPServer/OpenApiBackend/contract/handlers/browsing/utils/sortAgentTracks'
 import { isLeft } from 'fp-ts/lib/Either'
 
 import {
@@ -15,9 +18,9 @@ export const GetComposer = ({
   {},
   {},
   SuccessOutput | NotFoundOutput | ServerErrorOutput
-> => async (_, request) => {
+> => async (context) => {
   const allTracksByComposerResult = await agent.query.allTracksByComposer({
-    name: request.params.name,
+    name: context.request.params.name as string,
   })
 
   if (isLeft(allTracksByComposerResult)) {
@@ -35,7 +38,7 @@ export const GetComposer = ({
     }
   }
 
-  const tracks = allTracksByComposerResult.right
+  const tracks = sortAgentTracks(allTracksByComposerResult.right)
 
   if (tracks.length === 0) {
     return {
@@ -54,9 +57,9 @@ export const GetComposer = ({
     body: {
       success: true,
       composer: {
-        name: request.params.name,
-        albums: [],
-        tracks: [],
+        name: context.request.params.name as string,
+        albums: agentTracksToAlbumsList(tracks),
+        tracks: tracks.map(agentTrackToBrowsingTrack),
       },
     },
   }
