@@ -147,8 +147,18 @@ export const Agent = ({
 
         return right(mediaFiles.map(fromPersistencyMediaFileToTrack))
       },
-      allTracksByComposer: async (_) => {
-        return right([])
+      allTracksByComposer: async (composer) => {
+        const getAllTracksByComposerResult = await persistency.getAllMediaFilesByComposer(
+          composer.name,
+        )
+
+        if (isLeft(getAllTracksByComposerResult)) {
+          return left('PERSISTENCY_FAILURE')
+        }
+
+        const mediaFiles = getAllTracksByComposerResult.right
+
+        return right(mediaFiles.map(fromPersistencyMediaFileToTrack))
       },
       allTracksByGenre: async (_) => {
         return right([])

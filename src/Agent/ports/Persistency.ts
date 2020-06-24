@@ -76,6 +76,14 @@ export type PersistencyPort = {
   ) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
 
   /**
+   * Retrieves all the MediaFiles having:
+   * `.composers.includes(composerName)`
+   */
+  getAllMediaFilesByComposer: (
+    composerName: string,
+  ) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
+
+  /**
    * Retrieves the list of MediaFile(s) contained
    * in a given folder
    */
