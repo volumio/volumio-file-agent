@@ -105,7 +105,13 @@ export const Agent = ({
         return right(names)
       },
       allComposersNames: async () => {
-        return right([])
+        const getAllComposersResult = await persistency.getAllComposers()
+
+        if (isLeft(getAllComposersResult)) {
+          return left('PERSISTENCY_FAILURE')
+        }
+
+        return right(getAllComposersResult.right.sort())
       },
       allGenresNames: async () => {
         return right([])

@@ -42,6 +42,8 @@ export type PersistencyPort = {
 
   getAllArtists: () => Promise<Either<'PERSISTENCY_FAILURE', string[]>>
 
+  getAllComposers: () => Promise<Either<'PERSISTENCY_FAILURE', string[]>>
+
   getAllMediaFilesByAlbum: (input: {
     artist: string
     title: string
