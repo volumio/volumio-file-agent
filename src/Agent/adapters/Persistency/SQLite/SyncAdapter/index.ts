@@ -198,25 +198,33 @@ export const SyncAdapter = (db: Database): SyncAdapter => {
 
   const setMediaFileFavoriteState = db.transaction(
     (
-      mediaFile: { mountPoint: string; folder: string; name: string },
+      mediaFile: { folder: string; name: string },
       state: boolean,
     ): MediaFile => {
-      const currentMediaFile = statements.getMediaFile.get(mediaFile) as
-        | MediaFileRecord
-        | undefined
+      const mediaFilesInFolder = statements.getAllMediaFilesInFolder.all({
+        folder: mediaFile.folder,
+      }) as MediaFileRecord[]
+
+      const currentMediaFile = mediaFilesInFolder.find(
+        ({ name }) => name === mediaFile.name,
+      )
 
       if (currentMediaFile === undefined) {
         throw new Error('MEDIA_FILE_NOT_FOUND')
       }
 
       statements.updateMediaFileFavoriteState.run({
-        ...mediaFile,
+        mountPoint: currentMediaFile.mountPoint,
+        folder: currentMediaFile.folder,
+        name: currentMediaFile.name,
         favorite: state ? 1 : 0,
       })
 
-      const updatedMediaFile = statements.getMediaFile.get(
-        mediaFile,
-      ) as MediaFileRecord
+      const updatedMediaFile = statements.getMediaFile.get({
+        mountPoint: currentMediaFile.mountPoint,
+        folder: currentMediaFile.folder,
+        name: currentMediaFile.name,
+      }) as MediaFileRecord
 
       return mediaFileRecordToPortMediaFile(updatedMediaFile)
     },

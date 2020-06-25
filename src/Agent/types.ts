@@ -15,6 +15,15 @@ export interface AgentInterface {
     removeMountPoint: (
       mountPointPath: MountPointPath,
     ) => Promise<Either<'PERSISTENCY_FAILURE', void>>
+
+    setFavoriteStateOfTrack: (
+      /**
+       * We take the file path to the track because
+       * for now we have a 1:1 corresp. between a "Track" and a "MediaFile"
+       */
+      trackFilePath: string,
+      state: boolean,
+    ) => Promise<Either<'PERSISTENCY_FAILURE' | 'TRACK_NOT_FOUND', Track>>
   }
 
   query: {

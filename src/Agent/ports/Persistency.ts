@@ -136,7 +136,6 @@ export type PersistencyPort = {
    */
   setMediaFileFavoriteState: (
     mediaFile: {
-      mountPoint: string
       folder: string
       name: string
     },

@@ -1,5 +1,6 @@
 import { isLeft, left, right } from 'fp-ts/lib/Either'
 import { uniq } from 'lodash'
+import path from 'path'
 
 import { FilesystemPort } from './ports/Filesystem'
 import { MediaFileMetadataProcessingPort } from './ports/MediaFileMetadataProcessing'
@@ -85,6 +86,30 @@ export const Agent = ({
       removeMountPoint: async (mountPointPath) => {
         // TODO: implement flow of a discarded mountPoint's informations
         return persistency.deleteMountPoint(mountPointPath)
+      },
+      setFavoriteStateOfTrack: async (trackFilePath, state) => {
+        const setMediaFileFavoriteStateResult = await persistency.setMediaFileFavoriteState(
+          {
+            folder: path.dirname(trackFilePath),
+            name: path.basename(trackFilePath),
+          },
+          state,
+        )
+
+        if (isLeft(setMediaFileFavoriteStateResult)) {
+          switch (setMediaFileFavoriteStateResult.left) {
+            case 'MEDIA_FILE_NOT_FOUND':
+              return left('TRACK_NOT_FOUND')
+            case 'PERSISTENCY_FAILURE':
+              return left('PERSISTENCY_FAILURE')
+          }
+        }
+
+        return right(
+          fromPersistencyMediaFileToTrack(
+            setMediaFileFavoriteStateResult.right,
+          ),
+        )
       },
     },
     query: {
