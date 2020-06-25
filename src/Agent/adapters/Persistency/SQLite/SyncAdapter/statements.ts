@@ -111,6 +111,13 @@ export const makeStatements = (db: Database): Statements => ({
     WHERE
       json_each.value = @genre
   `),
+  getAllMediaFilesByYear: db.prepare(`
+    SELECT
+      ${MEDIAFILE_PROPS.join(',')}
+    FROM mediaFiles
+    WHERE
+      year = @year
+  `),
   getAllMediaFilesInFolder: db.prepare(`
     SELECT
       ${MEDIAFILE_PROPS.join(',')}
@@ -266,6 +273,9 @@ export type Statements = {
   }>
   getAllMediaFilesByGenre: Statement<{
     genre: string
+  }>
+  getAllMediaFilesByYear: Statement<{
+    year: number
   }>
   getAllMediaFilesInFolder: Statement<{
     folder: string

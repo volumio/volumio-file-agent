@@ -173,8 +173,17 @@ export const Agent = ({
 
         return right(mediaFiles.map(fromPersistencyMediaFileToTrack))
       },
-      allTracksByYear: async (_) => {
-        return right([])
+      allTracksByYear: async (year) => {
+        const getAllMediaFilesByYearResult = await persistency.getAllMediaFilesByYear(
+          year,
+        )
+        if (isLeft(getAllMediaFilesByYearResult)) {
+          return left('PERSISTENCY_FAILURE')
+        }
+
+        const mediaFiles = getAllMediaFilesByYearResult.right
+
+        return right(mediaFiles.map(fromPersistencyMediaFileToTrack))
       },
       allTracksInFolder: async (folderPath) => {
         const getAllMediaFilesInFolderResult = await persistency.getAllMediaFilesInFolder(
@@ -190,19 +199,15 @@ export const Agent = ({
         return right(mediaFiles.map(fromPersistencyMediaFileToTrack))
       },
       allTracksHavingAlbum: async () => {
-        try {
-          const getAllMediaFilesHavingAlbumResult = await persistency.getAllMediaFilesHavingAlbum()
+        const getAllMediaFilesHavingAlbumResult = await persistency.getAllMediaFilesHavingAlbum()
 
-          if (isLeft(getAllMediaFilesHavingAlbumResult)) {
-            return left('PERSISTENCY_FAILURE')
-          }
-
-          const mediaFiles = getAllMediaFilesHavingAlbumResult.right
-
-          return right(mediaFiles.map(fromPersistencyMediaFileToTrack))
-        } catch (error) {
+        if (isLeft(getAllMediaFilesHavingAlbumResult)) {
           return left('PERSISTENCY_FAILURE')
         }
+
+        const mediaFiles = getAllMediaFilesHavingAlbumResult.right
+
+        return right(mediaFiles.map(fromPersistencyMediaFileToTrack))
       },
       allMountPoints: async () => {
         return right([])

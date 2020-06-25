@@ -92,6 +92,14 @@ export type PersistencyPort = {
   ) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
 
   /**
+   * Retrieves all the MediaFiles having:
+   * `.year === year`
+   */
+  getAllMediaFilesByYear: (
+    year: number,
+  ) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
+
+  /**
    * Retrieves the list of MediaFile(s) contained
    * in a given folder
    */
