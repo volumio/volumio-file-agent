@@ -1,10 +1,20 @@
 # Device File Agent
 
-This software implements the MediaFile daemon which runs inside a Volumio device.
+This software implements a daemon which runs inside a Volumio device.
 
-The daemon starts an [HTTP Server](./src/HTTPServer) listening on `127.0.0.1:4000`, through which it receives commands and provides query results about its mantained catalog of MediaFiles.
+The daemon purpose is to scan the filesystem (upon instruction to do so by the Volumio core) and to maintain an intenal catalog of Tracks an Albums.
 
-The HTTP Server APIs are implemented and [documented](./src/HTTPServer/README.md) through the [OpenApi Specification](https://www.openapis.org/) standard.
+The Volumio Core can communicate with the daemon through an [HTTP Interface](./src/HTTPServer) exposed on `127.0.0.1:4000`.
+
+The HTTP interface is implemented and [documented](./src/HTTPServer/README.md) through the [OpenApi Specification](https://www.openapis.org/) standard.
+
+Internally the agent is a long running process wich performs I/O with various sources:
+
+- the filesystem
+- the network
+- an SQLite Database
+
+> [The Agent architecture](./Agent/Readme.md)
 
 ## Package commands
 
