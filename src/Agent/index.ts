@@ -148,15 +148,15 @@ export const Agent = ({
         return right(mediaFiles.map(fromPersistencyMediaFileToTrack))
       },
       allTracksByComposer: async (composer) => {
-        const getAllTracksByComposerResult = await persistency.getAllMediaFilesByComposer(
+        const getAllMediaFilesByComposerResult = await persistency.getAllMediaFilesByComposer(
           composer.name,
         )
 
-        if (isLeft(getAllTracksByComposerResult)) {
+        if (isLeft(getAllMediaFilesByComposerResult)) {
           return left('PERSISTENCY_FAILURE')
         }
 
-        const mediaFiles = getAllTracksByComposerResult.right
+        const mediaFiles = getAllMediaFilesByComposerResult.right
 
         return right(mediaFiles.map(fromPersistencyMediaFileToTrack))
       },
@@ -166,8 +166,18 @@ export const Agent = ({
       allTracksByYear: async (_) => {
         return right([])
       },
-      allTracksInFolder: async (_) => {
-        return right([])
+      allTracksInFolder: async (folderPath) => {
+        const getAllMediaFilesInFolderResult = await persistency.getAllMediaFilesInFolder(
+          folderPath,
+        )
+
+        if (isLeft(getAllMediaFilesInFolderResult)) {
+          return left('PERSISTENCY_FAILURE')
+        }
+
+        const mediaFiles = getAllMediaFilesInFolderResult.right
+
+        return right(mediaFiles.map(fromPersistencyMediaFileToTrack))
       },
       allTracksHavingAlbum: async () => {
         try {
@@ -196,9 +206,8 @@ export const Agent = ({
 
         return right(allYearsResult.right.sort())
       },
-      folderSubfolders: async () => {
-        return right([])
-      },
+      folderSubfolders: async (folderPath) =>
+        fs.findDirectorySubDirectories(folderPath),
     },
   }
 }
