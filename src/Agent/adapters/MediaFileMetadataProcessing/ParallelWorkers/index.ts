@@ -13,7 +13,7 @@ import { RequestsQueue } from './RequestsQueue'
 import { ResponsesStream } from './ResponsesStream'
 
 const IS_TYPESCRIPT = __filename.endsWith('ts')
-const WORKERS_NUMBER = cpus().length
+const WORKERS_NUMBER = Math.max(1, Math.floor(cpus().length / 2))
 const WORKER_MAIN_FILE = path.resolve(
   __dirname,
   'Worker',
