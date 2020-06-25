@@ -14,7 +14,7 @@ Internally the agent is a long running process wich performs I/O with various so
 - the network
 - an SQLite Database
 
-> [The Agent architecture](./Agent/Readme.md)
+> [The Agent architecture](./src/Agent/Readme.md)
 
 ## Package commands
 
