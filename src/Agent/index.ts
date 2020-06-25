@@ -210,7 +210,22 @@ export const Agent = ({
         return right(mediaFiles.map(fromPersistencyMediaFileToTrack))
       },
       allMountPoints: async () => {
-        return right([])
+        const getAllMountPointsWithStatsResult = await persistency.getAllMountPointsWithStats()
+
+        if (isLeft(getAllMountPointsWithStatsResult)) {
+          return left('PERSISTENCY_FAILURE')
+        }
+
+        const mountPoints = getAllMountPointsWithStatsResult.right
+
+        const enqueuedMountPoints = mountPointProcessingQueue.getEnqueuedMountPoints()
+
+        return right(
+          mountPoints.map((mountPoint) => ({
+            ...mountPoint,
+            processing: enqueuedMountPoints.includes(mountPoint.path),
+          })),
+        )
       },
       allYears: async () => {
         const allYearsResult = await persistency.getAllYears()
