@@ -84,6 +84,14 @@ export type PersistencyPort = {
   ) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
 
   /**
+   * Retrieves all the MediaFiles having:
+   * `.genres.includes(genreName)`
+   */
+  getAllMediaFilesByGenre: (
+    genreName: string,
+  ) => Promise<Either<'PERSISTENCY_FAILURE', MediaFile[]>>
+
+  /**
    * Retrieves the list of MediaFile(s) contained
    * in a given folder
    */
