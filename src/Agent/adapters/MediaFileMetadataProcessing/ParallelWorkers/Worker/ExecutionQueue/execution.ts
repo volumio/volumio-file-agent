@@ -13,7 +13,7 @@ export const execution: AsyncResultIterator<
 
   try {
     const metadata = await mm.parseFile(filePath, {
-      duration: true,
+      duration: false,
     })
 
     done(
