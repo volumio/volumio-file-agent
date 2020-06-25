@@ -2,7 +2,10 @@ import { AsyncResultIterator } from 'async'
 import { Either, left, right } from 'fp-ts/lib/Either'
 import * as mm from 'music-metadata'
 import path from 'path'
+import now from 'performance-now'
 import { CombineObjects } from 'simplytyped'
+
+import { debug } from '../debug'
 
 export const execution: AsyncResultIterator<
   JobToExecute,
@@ -12,6 +15,7 @@ export const execution: AsyncResultIterator<
   const filePath = path.resolve(job.file.folder, job.file.name)
 
   try {
+    const start = debug.info.enabled ? now() : 0
     const metadata = await mm.parseFile(filePath, {
       duration: false,
     })
@@ -24,6 +28,7 @@ export const execution: AsyncResultIterator<
           ...job.file,
           metadata,
         },
+        milliseconds: debug.info.enabled ? now() - start : 0,
       }),
     )
   } catch (error) {
@@ -62,6 +67,7 @@ export type SuccessfulJob = CombineObjects<
         metadata: mm.IAudioMetadata
       }
     >
+    milliseconds: number
   }
 >
 

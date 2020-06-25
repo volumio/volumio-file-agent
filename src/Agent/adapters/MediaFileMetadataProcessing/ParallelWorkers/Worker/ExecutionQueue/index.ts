@@ -35,7 +35,8 @@ export const ExecutionQueue = (): ExecutionQueue => {
               )
             } else {
               debug.info(
-                `[SUCCESS - %s] %s/%s`,
+                `[SUCCESS - %d ms - %s] %s/%s`,
+                result.right.milliseconds.toFixed(2),
                 job.id.toString(),
                 job.file.folder,
                 job.file.name,
