@@ -8,7 +8,7 @@ import { execution, ExecutionResult, JobToExecute } from './execution'
  * This states how many files a worker
  * can process concurrently
  */
-const MAX_CONCURRENT_PROCESSING = 4
+const MAX_CONCURRENT_PROCESSING = 1
 
 export const ExecutionQueue = (): ExecutionQueue => {
   const internalQueue = queue(execution, MAX_CONCURRENT_PROCESSING)
