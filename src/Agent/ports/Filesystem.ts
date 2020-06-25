@@ -1,6 +1,10 @@
 import { Either } from 'fp-ts/lib/Either'
 
 export type FilesystemPort = {
+  findDirectorySubDirectories: (
+    path: string,
+  ) => Promise<Either<Error, string[]>>
+
   /**
    * Search all the files contained in a filesystem tree
    * starting from a root folder.
