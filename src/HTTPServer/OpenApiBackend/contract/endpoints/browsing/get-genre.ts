@@ -44,8 +44,8 @@ export class GetGenre {
 
 export interface GetGenreReturnedGenre {
   name: string
-  artists: string[]
   albums: Album[]
+  artists: string[]
 }
 
 export interface GetGenreSuccessResponse {
