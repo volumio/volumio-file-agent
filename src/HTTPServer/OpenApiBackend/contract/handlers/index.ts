@@ -2,16 +2,19 @@ import { AgentInterface } from '@Agent'
 import { Context } from 'openapi-backend'
 
 import { BrowsingHandlers } from './browsing'
+import { FavoriteTracksHandlers } from './favorite-tracks'
 import { HealthCheck } from './HealthCheck'
 import { MountPointsHandlers } from './mount-points'
 import { wrapResponse } from './utils'
 
 export const Handlers = ({ agent }: Dependencies) => {
   const browsingHandlers = BrowsingHandlers({ agent })
+  const favoriteTracksHandlers = FavoriteTracksHandlers({ agent })
   const mountPointsHandlers = MountPointsHandlers({ agent })
 
   return {
     ...browsingHandlers,
+    ...favoriteTracksHandlers,
     ...mountPointsHandlers,
     HealthCheck: wrapResponse(HealthCheck({ agent })),
     notFound: async () => ({
