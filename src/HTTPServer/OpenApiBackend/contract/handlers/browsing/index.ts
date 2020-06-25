@@ -11,6 +11,7 @@ import { GetArtist } from './GetArtist'
 import { GetComposer } from './GetComposer'
 import { GetFolderContents } from './GetFolderContents'
 import { GetGenre } from './GetGenre'
+import { GetYear } from './GetYear'
 
 export const BrowsingHandlers = ({ agent }: Dependencies) => ({
   GetAlbum: wrapResponse(GetAlbum({ agent })),
@@ -23,6 +24,7 @@ export const BrowsingHandlers = ({ agent }: Dependencies) => ({
   GetComposer: wrapResponse(GetComposer({ agent })),
   GetFolderContents: wrapResponse(GetFolderContents({ agent })),
   GetGenre: wrapResponse(GetGenre({ agent })),
+  GetYear: wrapResponse(GetYear({ agent })),
 })
 
 export type Dependencies = {
