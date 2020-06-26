@@ -35,7 +35,7 @@ export const init = (config: {
 const tickHeapDump = (prefix?: string) => {
   const file = path.resolve(
     _datadir,
-    `${prefix || ''}.${Date.now()}.heapsnapshot`,
+    `${prefix || ''}.${new Date().toISOString()}.heapsnapshot`,
   )
   heapdump.writeSnapshot(file)
 }
