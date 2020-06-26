@@ -26,7 +26,16 @@ export const execution: AsyncResultIterator<
         ...job,
         file: {
           ...job.file,
-          metadata,
+          metadata: {
+            ...metadata,
+            common: {
+              ...metadata.common,
+              picture: undefined,
+            },
+          },
+          hasEmbeddedAlbumart:
+            metadata.common.picture !== undefined &&
+            metadata.common.picture.length > 0,
         },
         milliseconds: debug.info.enabled ? now() - start : 0,
       }),
@@ -65,6 +74,7 @@ export type SuccessfulJob = CombineObjects<
       FileToProcess,
       {
         metadata: mm.IAudioMetadata
+        hasEmbeddedAlbumart: boolean
       }
     >
     milliseconds: number

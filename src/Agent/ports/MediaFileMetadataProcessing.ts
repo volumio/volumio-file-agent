@@ -18,6 +18,7 @@ export type ProcessedMediaFile = CombineObjects<
   MediaFileToProcess,
   {
     metadata: IAudioMetadata
+    hasEmbeddedAlbumart: boolean
   }
 >
 

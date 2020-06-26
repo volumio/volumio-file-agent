@@ -42,9 +42,7 @@ export const Execution = ({
       result: processingResult,
     })
   } else {
-    const {
-      right: { metadata },
-    } = processingResult
+    const processedMediaFile = processingResult.right
 
     const updateDBResult = await persistency.updateMediaFileMetadata(
       {
@@ -52,7 +50,7 @@ export const Execution = ({
         folder: mediaFile.folder,
         name: mediaFile.name,
       },
-      fromProcessedMetadataToMediaFileMetadata(metadata),
+      fromProcessedMediaFileToMediaFileMetadata(processedMediaFile),
     )
 
     done(null, {
@@ -64,9 +62,10 @@ export const Execution = ({
 
 const getDurationFrom = (start: number) => now() - start
 
-const fromProcessedMetadataToMediaFileMetadata = (
-  metadata: ProcessedMediaFile['metadata'],
-): MediaFileMetadata => ({
+const fromProcessedMediaFileToMediaFileMetadata = ({
+  metadata,
+  hasEmbeddedAlbumart,
+}: ProcessedMediaFile): MediaFileMetadata => ({
   title: metadata.common.title || null,
   artists:
     metadata.common.artists && metadata.common.artists.length
@@ -105,8 +104,7 @@ const fromProcessedMetadataToMediaFileMetadata = (
   sampleRate: metadata.format.sampleRate || null,
   trackOffset: 0,
 
-  hasEmbeddedAlbumart:
-    metadata.common.picture && metadata.common.picture.length ? true : false,
+  hasEmbeddedAlbumart,
 })
 
 export type ExecutionReport = {
