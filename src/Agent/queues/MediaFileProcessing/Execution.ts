@@ -22,10 +22,13 @@ export const Execution = ({
 > => async (mediaFile, done) => {
   const start = now()
 
-  const processingResult = await processMediaFile({
-    folder: mediaFile.folder,
-    name: mediaFile.name,
-  })
+  const processingResult = await processMediaFile(
+    {
+      folder: mediaFile.folder,
+      name: mediaFile.name,
+    },
+    20000,
+  )
 
   if (isLeft(processingResult)) {
     await persistency.setMediaFileProcessingStatusToError({

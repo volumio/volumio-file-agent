@@ -15,7 +15,7 @@ export const MediaFileProcessingQueue = ({
     ((report: ExecutionReport) => void)[]
   >()
 
-  const internalQueue = queue(Execution({ persistency, processMediaFile }), 15)
+  const internalQueue = queue(Execution({ persistency, processMediaFile }), 10)
 
   return {
     add: async (mediaFile) => {
