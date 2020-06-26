@@ -8,6 +8,8 @@ import { HTTPServer } from '@HTTPServer'
 import { isLeft } from 'fp-ts/lib/Either'
 import path from 'path'
 
+import { init as initHeapDump } from './HeapDump'
+
 async function main() {
   const fs = NodeFilesystemAdapter()
 
@@ -39,6 +41,10 @@ async function main() {
   })
 
   server.listen(4000)
+
+  if (process.env.WITH_HEAPDUMP === 'true') {
+    initHeapDump(__dirname, 3000)
+  }
 }
 
 main()
