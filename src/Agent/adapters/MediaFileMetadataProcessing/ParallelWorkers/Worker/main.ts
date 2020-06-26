@@ -39,7 +39,7 @@ async function main() {
   if (process.env.WITH_HEAPDUMP === 'true') {
     initHeapDump({
       directory: process.cwd(),
-      tickInterval: 3000,
+      tickInterval: 5000,
       filePrefix: `.worker-${process.pid}`,
     })
   }
