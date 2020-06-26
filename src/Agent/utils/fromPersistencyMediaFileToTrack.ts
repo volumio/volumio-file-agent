@@ -2,6 +2,9 @@ import { MediaFile } from '@Agent/ports/Persistency'
 import { Track } from '@Agent/types'
 import { last } from 'lodash'
 
+/**
+ * Persistency MediaFile -> Agent Track conversion
+ */
 export const fromPersistencyMediaFileToTrack = (
   mediaFile: MediaFile,
 ): Track => ({

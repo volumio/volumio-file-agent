@@ -2,6 +2,10 @@ import { Either, isLeft, left, right } from 'fp-ts/lib/Either'
 
 import { FilesystemPort } from '../ports/Filesystem'
 
+/**
+ * Validates that the provided path points
+ * to an existing directory
+ */
 export const mountPointFSValidation = async (
   path: string,
   isDirectory: FilesystemPort['isDirectory'],

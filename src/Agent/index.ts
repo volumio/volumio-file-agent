@@ -42,6 +42,9 @@ export const Agent = ({
   return {
     command: {
       addMountPoint: async (mountPointPath) => {
+        /**
+         * mountPointPath is trimmed and an eventual trailing `/` is removed
+         */
         const trimmedPath = mountPointPath.trim()
         const pathWithoutTrailingSlash = trimmedPath.endsWith('/')
           ? trimmedPath.slice(0, -1)

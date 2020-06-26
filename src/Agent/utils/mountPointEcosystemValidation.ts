@@ -1,5 +1,13 @@
 import { Either, left, right } from 'fp-ts/lib/Either'
 import { some } from 'lodash'
+
+/**
+ * Validates a mountPoint path against the set of
+ * known mountPoint paths.
+ *
+ * The validating mountPoint should be neither the parent, nor the child, of an
+ * already known one
+ */
 export const mountPointEcosystemValidation = (
   mountPoint: string,
   knownMountPoints: string[],
