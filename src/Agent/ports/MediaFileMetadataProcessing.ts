@@ -1,5 +1,5 @@
+import { MediaFileMetadata } from '@Agent/ports/Persistency'
 import { Either } from 'fp-ts/lib/Either'
-import { IAudioMetadata } from 'music-metadata'
 import { CombineObjects } from 'simplytyped'
 
 export type MediaFileMetadataProcessingPort = {
@@ -17,8 +17,7 @@ export type MediaFileToProcess = {
 export type ProcessedMediaFile = CombineObjects<
   MediaFileToProcess,
   {
-    metadata: IAudioMetadata
-    hasEmbeddedAlbumart: boolean
+    metadata: MediaFileMetadata
   }
 >
 
