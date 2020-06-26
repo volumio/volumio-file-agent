@@ -16,7 +16,7 @@ export const MountPointFolderProcessingQueue = ({
 }: Dependencies): MountPointFolderProcessingQueue => {
   const internalQueue = queue(
     Execution({ enqueueMediaFileProcessing, fs, persistency }),
-    3,
+    1,
   )
 
   return {

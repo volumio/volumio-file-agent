@@ -12,7 +12,7 @@ export const MountPointProcessingQueue = ({
     ((report: ExecutionReport) => void)[]
   >()
 
-  const internalQueue = queue(Execution({ processFolder, scanMountPoint }), 3)
+  const internalQueue = queue(Execution({ processFolder, scanMountPoint }), 1)
 
   return {
     add: (mountPointID) => {
