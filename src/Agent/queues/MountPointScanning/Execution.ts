@@ -29,7 +29,6 @@ export const MEDIA_FILE_EXTENSIONS = [
   'aiff',
   'ape',
   'asf',
-  'cue',
   'flac',
   'm2a',
   'm4a',
