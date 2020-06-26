@@ -2,7 +2,6 @@ import { ChildProcess, spawn } from 'child_process'
 import { left } from 'fp-ts/lib/Either'
 import { cpus } from 'os'
 import path from 'path'
-import { filter } from 'rxjs/operators'
 import { CombineObjects } from 'simplytyped'
 import * as zmq from 'zeromq'
 
@@ -88,15 +87,15 @@ export const ParallelWorkersMediaFileMetadataProcessingAdapter = async (): Promi
               }, timeout)
             : null
 
-        const subscription = responsesStream
-          .pipe(filter(({ id }) => id === requestId))
-          .subscribe((response) => {
+        const subscription = responsesStream.subscribe((response) => {
+          if (response.id === requestId) {
             if (timeoutHandle !== null) {
               clearTimeout(timeoutHandle)
             }
             subscription.unsubscribe()
             resolve(response.result)
-          })
+          }
+        })
       }),
     stop: () => {
       workersSet.forEach((worker) => {
