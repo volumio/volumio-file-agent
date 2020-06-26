@@ -2,6 +2,7 @@ import 'core-js/modules/es.symbol.async-iterator'
 
 import * as zmq from 'zeromq'
 
+import { init as initHeapDump } from '../../../../../HeapDump'
 import { SOCKET_ADDRESS } from '../constants'
 import { debug } from './debug'
 import { ExecutionQueue } from './ExecutionQueue'
@@ -34,6 +35,14 @@ async function main() {
     router.close()
     router.disconnect(SOCKET_ADDRESS)
   })
+
+  if (process.env.WITH_HEAPDUMP === 'true') {
+    initHeapDump({
+      directory: process.cwd(),
+      tickInterval: 3000,
+      filePrefix: `.worker-${process.pid}`,
+    })
+  }
 }
 
 main()

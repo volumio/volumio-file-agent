@@ -43,7 +43,11 @@ async function main() {
   server.listen(4000)
 
   if (process.env.WITH_HEAPDUMP === 'true') {
-    initHeapDump(__dirname, 3000)
+    initHeapDump({
+      directory: process.cwd(),
+      tickInterval: 3000,
+      filePrefix: '.agent',
+    })
   }
 }
 
