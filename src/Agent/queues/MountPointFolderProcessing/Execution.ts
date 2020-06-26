@@ -5,7 +5,11 @@ import path from 'path'
 import now from 'performance-now'
 
 import { FileStat, FilesystemPort } from '../../ports/Filesystem'
-import { MediaFile, PersistencyPort } from '../../ports/Persistency'
+import {
+  MediaFile,
+  MediaFileBinaryProcessingStatus,
+  PersistencyPort,
+} from '../../ports/Persistency'
 
 export const Execution = ({
   enqueueMediaFileProcessing,
@@ -76,6 +80,7 @@ export const Execution = ({
 
     const fileStat = statsByFileName[fileName] as FileStat
     if (
+      mediaFileInDB.processingStatus === MediaFileBinaryProcessingStatus.DONE &&
       fileStat.size === mediaFileInDB.size &&
       fileStat.modifiedOn.getTime() === mediaFileInDB.modifiedOn.getTime()
     ) {
