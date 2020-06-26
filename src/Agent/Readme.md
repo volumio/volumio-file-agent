@@ -49,4 +49,4 @@ The adapter uses [`typeorm`](https://www.npmjs.com/package/typeorm) just to perf
 
 The adapter uses [`better-sqlite3`](https://www.npmjs.com/package/better-sqlite3) to implement queries and transactions versus the database.
 
-`better-sqlite3` is a native module (needs a native compile step on install). It uses a syncronous approach to I/O with the database and shows a really good performance.
+`better-sqlite3` is a native module (needs a native compile step on install). It uses a syncronous approach to I/O with the database and shows a really good performance. However its implementation is wrapped by an _async_ interface.
