@@ -160,6 +160,7 @@ export const makeStatements = (db: Database): Statements => ({
     FROM mediaFiles
     WHERE
       mountPoint = @mountPoint
+    GROUP BY processingStatus
   `),
   getTotalMusicDurationByMountPoint: db.prepare(`
     SELECT
