@@ -33,6 +33,9 @@ export const ExecutionQueue = (): ExecutionQueue => {
                 job.file.folder,
                 job.file.name,
               )
+              if (result.left.error.stack) {
+                debug.error(result.left.error.stack)
+              }
             } else {
               debug.info(
                 `[SUCCESS - %d ms - %s] %s/%s`,
