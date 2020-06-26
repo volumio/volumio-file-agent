@@ -11,7 +11,8 @@ export const agentTracksToAlbumsList = (tracks: AgentTrack[]): Album[] => {
 
   const tracksByAlbum = groupBy(
     tracksHavingDefinedAlbum,
-    ({ metadata }) => `${metadata.album}:${metadata.albumArtist || ''}`,
+    ({ metadata }) =>
+      `${metadata.album?.toLowerCase()}:${metadata.albumArtist || ''}`,
   )
 
   return sortBy(
