@@ -35,6 +35,9 @@ export interface Album {
    */
   trackPathWithEmbeddedAlbumart: string | null
 
+  /** The list of folders containing the album tracks */
+  tracksFolders: string[]
+
   /**
    * If present represents the year of to the first
    * contained track having a year defined

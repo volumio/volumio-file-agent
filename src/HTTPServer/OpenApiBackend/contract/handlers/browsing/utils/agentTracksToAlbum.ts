@@ -30,6 +30,7 @@ export const agentTracksToAlbum = (tracks: AgentTrack[]): Album => {
           album.trackPathWithEmbeddedAlbumart ||
           path.resolve(track.file.folder, track.file.name)
       }
+      album.tracksFolders.push(track.file.folder)
       album.year = album.year || track.metadata.year
       return album
     },
@@ -45,6 +46,7 @@ export const agentTracksToAlbum = (tracks: AgentTrack[]): Album => {
       sampleRates: [],
       title: '',
       trackPathWithEmbeddedAlbumart: null,
+      tracksFolders: [],
       year: null,
     },
   )
@@ -61,6 +63,7 @@ export const agentTracksToAlbum = (tracks: AgentTrack[]): Album => {
     sampleRates: uniq(intermediate.sampleRates).sort(),
     title: intermediate.title,
     trackPathWithEmbeddedAlbumart: intermediate.trackPathWithEmbeddedAlbumart,
+    tracksFolders: uniq(intermediate.tracksFolders).sort(),
     year: intermediate.year,
   }
 }
