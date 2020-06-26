@@ -18,6 +18,7 @@ export const execution: AsyncResultIterator<
     const start = debug.info.enabled ? now() : 0
     const metadata = await mm.parseFile(filePath, {
       duration: false,
+      skipPostHeaders: true,
     })
 
     done(
