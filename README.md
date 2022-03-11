@@ -16,6 +16,29 @@ Internally the agent is a long running process wich performs I/O with various so
 
 > [The Agent architecture](./src/Agent/Readme.md)
 
+## How to set up and install 
+
+- Clone the repository 
+
+```
+git clone https://github.com/volumio/volumio-file-agent.git
+```
+
+- Enter the folder 
+
+```
+cd volumio-file-agent
+```
+
+- Install pre-requisites 
+
+```
+apt-get update 
+apt-get install -y build-essential 
+npm install
+```
+
+
 ## Package commands
 
 - `npm run build`: Deletes the `./dist` folder, creates the OpenApi JSON spec, TS compiles the `./src` folder into the `./dist` folder.
@@ -24,3 +47,6 @@ Internally the agent is a long running process wich performs I/O with various so
 - `npm run openApi:doc`: Starts the OpenApi documentation server on http://localhost:8080
 - `npm run openApi:json`: Creates the OpenApi JSON spec.
 - `npm run try`: `npm run build` && `npm run start`
+
+
+
