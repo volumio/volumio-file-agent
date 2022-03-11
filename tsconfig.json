@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "alwaysStrict": true,
+    "baseUrl": ".",
+    "declaration": false,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["ES2015", "ESNext.AsyncIterable"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noErrorTruncation": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "outDir": "./dist",
+    "paths": {
+      "@Agent": ["./src/Agent"],
+      "@Agent/*": ["./src/Agent/*"],
+      "@HTTPServer": ["./src/HTTPServer"],
+      "@HTTPServer/*": ["./src/HTTPServer/*"]
+    },
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "strict": true, // We need this setting in order to make `TupleFromUnion<U>` in src/adapters/Database/SQLite/TupleFromUnion.ts work
+    "strictNullChecks": true,
+    "target": "ES2015"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
