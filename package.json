@@ -16,7 +16,7 @@
     "url": "git+https://github.com/volumio/volumio-file-agent.git"
   },
   "dependencies": {
-    "async": "^3.2.0",
+    "async": "^3.2.2",
     "better-sqlite3": "^6.0.1",
     "body-parser": "^1.19.0",
     "core-js": "^3.6.5",
